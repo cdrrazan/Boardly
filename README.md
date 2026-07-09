@@ -197,6 +197,8 @@ npm run all         # typecheck + test + build
 
 The bundled `dist/index.js` is committed so the action runs without a build step. Rebuild and commit it whenever you change `src/`.
 
+**Built with:** TypeScript · Node 20 · Octokit GraphQL · Zod · ncc — see the full [**Tech Stack**](./TECH_STACK.md) and [**Architecture**](./docs/ARCHITECTURE.md).
+
 ## 🗺️ Roadmap
 
 Working-days awareness, escalation ladders, iteration auto-assignment, capacity warnings, and more — see [**ROADMAP.md**](./ROADMAP.md).
