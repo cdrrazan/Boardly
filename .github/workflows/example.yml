@@ -30,7 +30,7 @@ jobs:
   automate:
     runs-on: ubuntu-latest
     steps:
-      - uses: cdrrazan/Boardly@v0
+      - uses: cdrrazan/Boardly@v1
         with:
           token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
           config-path: .github/project-automation.yml

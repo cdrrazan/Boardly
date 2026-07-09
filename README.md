@@ -13,7 +13,7 @@ A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint
 [![Made with TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![GitHub Projects v2](https://img.shields.io/badge/GitHub-Projects%20v2-181717?logo=github&logoColor=white)](https://docs.github.com/issues/planning-and-tracking-with-projects)
-[![Tests](https://img.shields.io/badge/tests-40%20passing-brightgreen.svg)](./test)
+[![Tests](https://img.shields.io/badge/tests-48%20passing-brightgreen.svg)](./test)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](./CONTRIBUTING.md)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](./OPEN_SOURCE.md)
 
@@ -93,7 +93,7 @@ flowchart TD
 3. **Add a workflow** — see [`.github/workflows/example.yml`](./.github/workflows/example.yml):
 
    ```yaml
-   - uses: cdrrazan/Boardly@v0
+   - uses: cdrrazan/Boardly@v1
      with:
        token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
        config-path: .github/project-automation.yml
@@ -161,7 +161,7 @@ notifications:
 
 ```yaml
 # in your workflow — map the secrets into the environment
-- uses: cdrrazan/Boardly@v0
+- uses: cdrrazan/Boardly@v1
   with:
     token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
   env:

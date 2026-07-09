@@ -29,7 +29,7 @@ notifications:
 
 ```yaml
 # workflow — map secrets into the environment
-- uses: cdrrazan/Boardly@v0
+- uses: cdrrazan/Boardly@v1
   with:
     token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
   env:

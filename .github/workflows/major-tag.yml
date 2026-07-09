@@ -1,5 +1,5 @@
 # Keeps the moving major-version tag (e.g. `v0`) pointed at the latest release,
-# so consumers who pin `uses: cdrrazan/Boardly@v0` always get the newest v0.x.
+# so consumers who pin `uses: cdrrazan/Boardly@v1` always get the newest v1.x.
 #
 # On every published, non-pre-release tag of the form vMAJOR.MINOR.PATCH, this
 # (re)creates `vMAJOR` at the released commit. Publishing v0.1.0 creates v0;
