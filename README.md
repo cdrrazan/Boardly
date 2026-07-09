@@ -71,7 +71,7 @@ flowchart TD
 3. **Add a workflow** — see [`.github/workflows/example.yml`](./.github/workflows/example.yml):
 
    ```yaml
-   - uses: cdrrazan/boardly@v0
+   - uses: cdrrazan/Boardly@v0
      with:
        token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
        config-path: .github/project-automation.yml

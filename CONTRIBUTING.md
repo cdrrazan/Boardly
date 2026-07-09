@@ -14,8 +14,8 @@ By participating you agree to abide by our [Code of Conduct](./CODE_OF_CONDUCT.m
 ## Development setup
 
 ```bash
-git clone https://github.com/cdrrazan/boardly.git
-cd boardly
+git clone https://github.com/cdrrazan/Boardly.git
+cd Boardly
 npm install
 ```
 
