@@ -1,25 +1,72 @@
-# gh-project-autom8er
+<div align="center">
 
-A config-driven GitHub Action that automates **GitHub Projects (v2)** boards. Point it at a project, declare a few rules in YAML, and it keeps your board tidy on a schedule.
+# 🤖 gh-project-autom8er
 
-Every run writes an **audit trail** to the Actions job summary, so you always know exactly what the bot did (or, in `dry-run`, what it *would* do).
+### Put your GitHub Projects board on autopilot.
 
-## Features
+A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint rollover, stale-card nudges, sub-issue gating, digests, standups, and priority sorting — all from one YAML file.
 
-| # | Feature | What it does |
-|---|---------|--------------|
-| 1 | **Sprint rollover** | When an iteration ends, move unfinished items into the next iteration. |
-| 2 | **Stale-card nudges** | @-mention owners when a card sits in a status past a threshold. De-duped so it won't spam. |
-| 7 | **Sub-issue gating + roll-up** | Block a card from staying "Done" while it has open sub-issues; optionally write completion % into a progress field. |
-| 8 | **Sprint digest** | At iteration end, post completed-vs-carried-over and velocity. |
-| 9 | **Daily standup** | Post what moved in the last N hours, grouped by assignee. |
-| 12 | **Priority auto-sort** | Reorder the board so higher-priority cards float to the top. |
+<br/>
 
-## Quick start
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![Made with TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/badge/Node-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![GitHub Projects v2](https://img.shields.io/badge/GitHub-Projects%20v2-181717?logo=github&logoColor=white)](https://docs.github.com/issues/planning-and-tracking-with-projects)
+[![Tests](https://img.shields.io/badge/tests-14%20passing-brightgreen.svg)](./test)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](./CONTRIBUTING.md)
+[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](./OPEN_SOURCE.md)
 
-1. **Create a token.** The default `GITHUB_TOKEN` generally can't read org Projects. Create a fine-grained PAT or GitHub App token with **Projects: read & write** and **Issues: read & write**, and save it as a repo/org secret (e.g. `PROJECT_AUTOMATION_TOKEN`).
+[Quick start](#-quick-start) · [Features](#-features) · [Use cases](./docs/use-cases) · [Config](#%EF%B8%8F-configuration) · [Roadmap](./ROADMAP.md) · [Contributing](./CONTRIBUTING.md) · [Sponsor](#-support-the-project)
 
-2. **Add config** at `.github/project-automation.yml`. Start from [`project-automation.example.yml`](./project-automation.example.yml).
+</div>
+
+---
+
+## ✨ What it does
+
+You point the action at a Project (v2), describe your rules in `.github/project-automation.yml`, and schedule it. On every run it reads the board, applies your enabled features, and writes an **audit trail** to the Actions job summary so you can see exactly what happened.
+
+```mermaid
+flowchart LR
+    cron([⏰ Schedule / manual]) --> action[🤖 gh-project-autom8er]
+    cfg[[📄 project-automation.yml]] --> action
+    action -->|GraphQL| gh[(🗂️ GitHub Project v2)]
+    gh --> action
+    action --> f1[🔁 Rollover]
+    action --> f2[🔔 Stale nudges]
+    action --> f3[🧩 Sub-issue gate]
+    action --> f4[🏁 Digest]
+    action --> f5[🗓️ Standup]
+    action --> f6[🔼 Priority sort]
+    f1 & f2 & f3 & f4 & f5 & f6 --> audit[[📋 Audit trail → Job Summary]]
+```
+
+## 🚀 Features
+
+| | Feature | What it does |
+|:--:|---------|--------------|
+| 🔁 | **Sprint rollover** | When an iteration ends, move unfinished items into the next iteration so nothing is stranded in a closed sprint. |
+| 🔔 | **Stale-card nudges** | @-mention owners when a card sits in a status past a threshold. De-duped so it never spams. |
+| 🧩 | **Sub-issue gating + roll-up** | Block a card from staying **Done** while it has open sub-issues; optionally write completion % into a progress field. |
+| 🏁 | **Sprint digest** | At iteration end, post completed-vs-carried-over counts and velocity. |
+| 🗓️ | **Daily standup** | Post what moved in the last _N_ hours, grouped by assignee. |
+| 🔼 | **Priority auto-sort** | Reorder the board so higher-priority cards float to the top. |
+| 📋 | **Audit trail** | Every action (or, in `dry-run`, every _intended_ action) is written to the job summary. |
+
+➡️ **See detailed, real-world walkthroughs in [docs/use-cases](./docs/use-cases).**
+
+## ⚡ Quick start
+
+```mermaid
+flowchart TD
+    A[1 · Create a token<br/>Projects + Issues scope] --> B[2 · Add config<br/>.github/project-automation.yml]
+    B --> C[3 · Add workflow<br/>.github/workflows/project-automation.yml]
+    C --> D[4 · Dry-run to preview] --> E[5 · Flip dry-run off 🎉]
+```
+
+1. **Create a token.** The default `GITHUB_TOKEN` generally can't read org Projects. Create a fine-grained PAT or GitHub App token with **Projects: read & write** and **Issues: read & write**, and save it as a secret (e.g. `PROJECT_AUTOMATION_TOKEN`).
+
+2. **Add config** at `.github/project-automation.yml` — start from [`project-automation.example.yml`](./project-automation.example.yml).
 
 3. **Add a workflow** — see [`.github/workflows/example.yml`](./.github/workflows/example.yml):
 
@@ -28,37 +75,92 @@ Every run writes an **audit trail** to the Actions job summary, so you always kn
      with:
        token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
        config-path: .github/project-automation.yml
+       dry-run: "true"   # preview first; remove once it looks right
    ```
 
-## Inputs
+## 🧾 Inputs & outputs
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `token` | — (required) | Token with `project` + `issues` access to the target project. |
+| `token` | — _(required)_ | Token with `project` + `issues` access to the target project. |
 | `config-path` | `.github/project-automation.yml` | Path to the config file. |
 | `only` | `""` | Run just one feature: `rollover`, `stale-nudge`, `sub-issue-gate`, `digest`, `standup`, `priority-sort`. Empty runs every enabled feature. |
 | `dry-run` | `false` | Log every intended action to the audit trail without making changes. |
 
 **Output:** `actions-count` — number of mutating actions taken (or that would be taken in dry-run).
 
-## How it decides things
+## ⚙️ Configuration
 
-- **"Time in status"** is approximated by when the Status field value was last changed (the Projects v2 API exposes each field value's `updatedAt`). It is not a full status-history walk.
+Everything is declared in one YAML file. Minimal example:
+
+```yaml
+project:
+  owner: my-org
+  type: org        # or "user"
+  number: 5
+fields:
+  status: Status
+  iteration: Sprint
+  priority: Priority
+doneStatuses: ["Done"]
+features:
+  rollover:
+    enabled: true
+  staleNudge:
+    enabled: true
+    rules:
+      - status: "In Progress"
+        days: 3
+        notify: assignees
+```
+
+Full reference: [`project-automation.example.yml`](./project-automation.example.yml).
+
+## 🧠 How it decides things
+
+- **"Time in status"** is approximated by when the Status field value was last changed (Projects v2 exposes each field value's `updatedAt`). It is not a full status-history walk.
 - **Iterations** come from the iteration field's configuration. Rollover and digest act on the most recently *completed* iteration; new work rolls into the first *active* iteration.
 - **Sub-issues** use the native GitHub sub-issues API (`subIssuesSummary`), requested with the `sub_issues` GraphQL feature header.
 - **Priority sort** uses `updateProjectV2ItemPosition`. Manual order only shows on a board view whose sort is set to **manual** — a field-sorted view overrides it.
 
-## Development
+## 🛠️ Development
 
 ```bash
 npm install
 npm run typecheck   # tsc --noEmit
-npm run build       # bundle src -> dist/index.js (committed, required for JS actions)
+npm test            # unit tests (node:test + tsx)
+npm run build       # bundle src -> dist/index.js (committed; required for JS actions)
 npm run all         # typecheck + test + build
 ```
 
 The bundled `dist/index.js` is committed so the action runs without a build step. Rebuild and commit it whenever you change `src/`.
 
-## License
+## 🗺️ Roadmap
 
-[MIT](./LICENSE)
+Working-days awareness, escalation ladders, iteration auto-assignment, capacity warnings, and more — see [**ROADMAP.md**](./ROADMAP.md).
+
+## 🤝 Contributing
+
+Contributions are very welcome! Read the [**Contributing Guide**](./CONTRIBUTING.md) and our [**Code of Conduct**](./CODE_OF_CONDUCT.md) to get started. Found a security issue? See [**SECURITY.md**](./SECURITY.md).
+
+## ❤️ Support the project
+
+`gh-project-autom8er` is free and open source. If it saves your team time, please consider sponsoring — it directly funds maintenance and new features.
+
+<div align="center">
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-GitHub-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/cdrrazan)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/cdrrazan)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-FF5E5B?logo=kofi&logoColor=white)](https://ko-fi.com/cdrrazan)
+
+⭐ **Starring the repo also helps a lot.**
+
+</div>
+
+## 📄 License
+
+Released under the [MIT License](./LICENSE) — see also our [open-source note](./OPEN_SOURCE.md).
+
+<div align="center">
+<sub>Built with ❤️ for teams who'd rather ship than babysit a board.</sub>
+</div>
