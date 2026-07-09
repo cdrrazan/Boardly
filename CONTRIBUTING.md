@@ -53,6 +53,16 @@ dist/                 # bundled action (committed — see below)
 5. **Keep commits focused** and write clear messages (we loosely follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
 6. **Update docs** — if you add a feature, add a [use-case](./docs/use-cases) and update the README feature table.
 
+## CI & required checks
+
+Every pull request runs the **PR checks** workflow ([`.github/workflows/pr-checks.yml`](./.github/workflows/pr-checks.yml)), which must be green before merge:
+
+- **Typecheck · Test · Build** — `npm run typecheck`, `npm test`, `npm run build`, and a check that committed `dist/` matches `src/`.
+- **No merge conflicts** — the PR is test-merged against the base branch.
+- **PR ready to merge** — an aggregate gate that passes only when both of the above pass.
+
+> **Maintainers:** mark **`PR ready to merge`** as a required status check in the branch-protection rule for `main` (Settings → Branches). That single check enforces tests, build, `dist/` sync, and conflict-free merges. Pushes to `main` are separately validated by the [`CI`](./.github/workflows/ci.yml) workflow.
+
 ## Adding a new feature
 
 1. Create `src/features/yourFeature.ts` exporting `async function runYourFeature(ctx: RunContext)`.
