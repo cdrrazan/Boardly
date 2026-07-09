@@ -87,6 +87,11 @@ export const configSchema = z.object({
 
 export type Config = z.infer<typeof configSchema>;
 
+/**
+ * Read, parse, and validate the YAML config at `path`.
+ * @throws Error with a human-readable message if the file is missing, not valid
+ *   YAML, or fails schema validation (with a per-field breakdown).
+ */
 export function loadConfig(path: string): Config {
   let raw: string;
   try {

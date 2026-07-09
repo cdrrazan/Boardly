@@ -59,28 +59,44 @@ export class ProjectClient {
     return { id: head!.id, title: head!.title, fields: head!.fields, items };
   }
 
+  /**
+   * Set a single-select field (e.g. Status/Priority) on an item.
+   * @param optionId The option's node id, resolved via {@link import("../util/project.js").optionId}.
+   */
   async setSingleSelect(projectId: string, itemId: string, fieldId: string, optionId: string): Promise<void> {
     await this.octokit.graphql(setSingleSelectMutation, { projectId, itemId, fieldId, optionId });
   }
 
+  /**
+   * Assign an item to an iteration.
+   * @param iterationId The iteration id from the iteration field's configuration.
+   */
   async setIteration(projectId: string, itemId: string, fieldId: string, iterationId: string): Promise<void> {
     await this.octokit.graphql(setIterationMutation, { projectId, itemId, fieldId, iterationId });
   }
 
+  /** Set a Number field on an item (used for the sub-issue progress roll-up). */
   async setNumber(projectId: string, itemId: string, fieldId: string, value: number): Promise<void> {
     await this.octokit.graphql(setNumberMutation, { projectId, itemId, fieldId, number: value });
   }
 
+  /**
+   * Move an item within the project's manual order.
+   * @param afterId Place the item immediately after this item id, or `null` to move it to the top.
+   */
   async setPosition(projectId: string, itemId: string, afterId: string | null): Promise<void> {
     await this.octokit.graphql(setPositionMutation, { projectId, itemId, afterId });
   }
 
-  /** Create a comment on an issue/PR. Returns the created comment's body marker safe id. */
+  /** Create a comment on an issue/PR (used for nudges, gate warnings, digests, and standups). */
   async comment(owner: string, repo: string, issueNumber: number, body: string): Promise<void> {
     await this.octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
   }
 
-  /** List recent comment bodies on an issue/PR (used for de-duplicating nudges). */
+  /**
+   * List recent comment bodies on an issue/PR, newest page last.
+   * Used to de-duplicate nudges/gate warnings by scanning for hidden markers.
+   */
   async listComments(owner: string, repo: string, issueNumber: number): Promise<{ body: string; createdAt: string }[]> {
     const resp = await this.octokit.rest.issues.listComments({
       owner,
