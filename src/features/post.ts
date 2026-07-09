@@ -1,8 +1,12 @@
 import type { RunContext } from "./context.js";
 
+/** Where a digest/standup report should be posted. Exactly one of `issue` or `createIssueTitle` is set. */
 export interface PostTarget {
+  /** Comment on this existing issue number (in the workflow's repo). */
   issue?: number;
+  /** Or open a fresh issue with this title. */
   createIssueTitle?: string;
+  /** Labels applied when a fresh issue is created. */
   labels: string[];
 }
 

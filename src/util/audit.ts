@@ -18,6 +18,14 @@ export class Audit {
 
   constructor(private readonly dryRun: boolean) {}
 
+  /**
+   * Record one action. Call this *before* performing the mutation so the trail
+   * is identical whether or not `dryRun` suppresses the change.
+   * @param feature Feature key (e.g. "rollover").
+   * @param action Short verb (e.g. "move-iteration", "comment").
+   * @param target Human-readable subject (e.g. "#12 Fix flaky test").
+   * @param detail What changed / why.
+   */
   record(feature: string, action: string, target: string, detail: string): void {
     const applied = !this.dryRun;
     this.entries.push({ feature, action, target, detail, applied });
@@ -25,10 +33,12 @@ export class Audit {
     core.info(`${prefix}${feature} · ${action} · ${target} — ${detail}`);
   }
 
+  /** Number of actions recorded so far (surfaced as the action's `actions-count` output). */
   get count(): number {
     return this.entries.length;
   }
 
+  /** Render the accumulated actions as a table in the Actions job summary. */
   async flush(projectTitle: string): Promise<void> {
     if (this.entries.length === 0) {
       core.summary.addHeading("Boardly", 2);

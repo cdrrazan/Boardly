@@ -1,9 +1,11 @@
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+/** Fractional number of days from `from` to `to` (negative if `to` precedes `from`). */
 export function daysBetween(from: Date, to: Date): number {
   return (to.getTime() - from.getTime()) / MS_PER_DAY;
 }
 
+/** Fractional number of hours from `from` to `to` (negative if `to` precedes `from`). */
 export function hoursBetween(from: Date, to: Date): number {
   return (to.getTime() - from.getTime()) / (60 * 60 * 1000);
 }
