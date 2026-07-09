@@ -57,7 +57,10 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 400 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+  /* Prefer real Google Sans when the visitor has it installed (Android/ChromeOS/
+     Google users); otherwise fall back to Roboto (Google's other face) then the
+     system stack. Google Sans is proprietary and can't be self-hosted/served. */
+  font: 400 17px/1.65 "Google Sans", "Google Sans Text", "Product Sans", "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
