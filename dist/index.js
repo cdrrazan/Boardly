@@ -7394,7 +7394,7 @@ module.exports = __nccwpck_require__(218);
 
 
 var net = __nccwpck_require__(9278);
-var tls = __nccwpck_require__(2375);
+var tls = __nccwpck_require__(4756);
 var http = __nccwpck_require__(8611);
 var https = __nccwpck_require__(5692);
 var events = __nccwpck_require__(4434);
@@ -13849,7 +13849,7 @@ function buildConnector ({ allowH2, maxCachedSessions, socketPath, timeout, ...o
     let socket
     if (protocol === 'https:') {
       if (!tls) {
-        tls = __nccwpck_require__(2375)
+        tls = __nccwpck_require__(4756)
       }
       servername = servername || options.servername || util.getServerName(host) || null
 
@@ -29995,7 +29995,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("timers");
 
 /***/ }),
 
-/***/ 2375:
+/***/ 4756:
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("tls");
@@ -39070,6 +39070,100 @@ function loadConfig(path) {
     return parsed.data;
 }
 
+;// CONCATENATED MODULE: ./src/github/normalize.ts
+/**
+ * Pure translators from raw Projects (v2) GraphQL JSON into our normalized
+ * domain model. Kept free of any I/O so they can be unit-tested directly.
+ */
+/** Map a raw iteration node to {@link import("../types.js").IterationInfo}. */
+function mapIteration(i) {
+    return { id: i.id, title: i.title, startDate: i.startDate, duration: i.duration };
+}
+/**
+ * Normalize the project's `fields.nodes` array.
+ * Single-select fields keep their `options`; iteration fields expose their
+ * active `iterations` and `completedIterations` (re-ordered most-recent-first,
+ * since GitHub returns them oldest-first). Nodes without an `id` (e.g. an empty
+ * union member) are dropped.
+ */
+function normalizeFields(nodes) {
+    return nodes
+        .filter((n) => n && n.id)
+        .map((n) => {
+        const field = { id: n.id, name: n.name, dataType: n.dataType ?? "OTHER" };
+        if (n.options)
+            field.options = n.options.map((o) => ({ id: o.id, name: o.name }));
+        if (n.configuration) {
+            field.iterations = (n.configuration.iterations ?? []).map(mapIteration);
+            // GitHub returns completed iterations oldest-first; reverse to most-recent-first.
+            field.completedIterations = (n.configuration.completedIterations ?? []).map(mapIteration).reverse();
+        }
+        return field;
+    });
+}
+/**
+ * Normalize a single `ProjectV2Item` node: its typed field values and, when the
+ * content is an Issue or Pull Request, the linked content (assignees, sub-issue
+ * summary, parent). Draft issues yield `content: undefined`. Field values of an
+ * unrecognized type are skipped.
+ */
+function normalizeItem(node) {
+    const fieldValues = [];
+    for (const fv of node.fieldValues?.nodes ?? []) {
+        const fieldName = fv.field?.name;
+        if (!fieldName)
+            continue;
+        const base = { fieldName, updatedAt: fv.updatedAt };
+        switch (fv.__typename) {
+            case "ProjectV2ItemFieldSingleSelectValue":
+                base.singleSelect = { name: fv.name, optionId: fv.optionId };
+                break;
+            case "ProjectV2ItemFieldIterationValue":
+                base.iteration = { title: fv.title, iterationId: fv.iterationId };
+                break;
+            case "ProjectV2ItemFieldNumberValue":
+                base.number = fv.number;
+                break;
+            case "ProjectV2ItemFieldTextValue":
+                base.text = fv.text;
+                break;
+            case "ProjectV2ItemFieldDateValue":
+                base.date = fv.date;
+                break;
+            default:
+                continue;
+        }
+        fieldValues.push(base);
+    }
+    let content;
+    const c = node.content;
+    if (c && (c.__typename === "Issue" || c.__typename === "PullRequest")) {
+        content = {
+            type: c.__typename,
+            nodeId: c.id,
+            number: c.number,
+            title: c.title,
+            url: c.url,
+            state: c.state,
+            merged: c.merged,
+            closedAt: c.closedAt ?? null,
+            updatedAt: c.updatedAt,
+            repoOwner: c.repository.owner.login,
+            repoName: c.repository.name,
+            assignees: (c.assignees?.nodes ?? []).map((a) => a.login),
+            subIssues: c.subIssuesSummary
+                ? {
+                    total: c.subIssuesSummary.total,
+                    completed: c.subIssuesSummary.completed,
+                    percentCompleted: c.subIssuesSummary.percentCompleted,
+                }
+                : undefined,
+            parent: c.parent ? { number: c.parent.number, title: c.parent.title, url: c.parent.url } : undefined,
+        };
+    }
+    return { id: node.id, updatedAt: node.updatedAt, fieldValues, content };
+}
+
 ;// CONCATENATED MODULE: ./src/github/queries.ts
 /** GraphQL documents for reading and mutating Projects (v2). */
 const ITEM_FIELDS = /* GraphQL */ `
@@ -39207,6 +39301,7 @@ const setPositionMutation = /* GraphQL */ `
 ;// CONCATENATED MODULE: ./src/github/client.ts
 
 
+
 // Sub-issue fields (`subIssuesSummary`, `parent`) live behind a feature flag header.
 const SUB_ISSUE_HEADERS = { "GraphQL-Features": "sub_issues" };
 /** Thin wrapper over Octokit that speaks the Projects (v2) GraphQL API. */
@@ -39289,80 +39384,6 @@ class ProjectClient {
         const resp = await this.octokit.rest.issues.create({ owner, repo, title, body, labels });
         return resp.data.number;
     }
-}
-function normalizeFields(nodes) {
-    return nodes
-        .filter((n) => n && n.id)
-        .map((n) => {
-        const field = { id: n.id, name: n.name, dataType: n.dataType ?? "OTHER" };
-        if (n.options)
-            field.options = n.options.map((o) => ({ id: o.id, name: o.name }));
-        if (n.configuration) {
-            field.iterations = (n.configuration.iterations ?? []).map(mapIteration);
-            // GitHub returns completed iterations oldest-first; reverse to most-recent-first.
-            field.completedIterations = (n.configuration.completedIterations ?? []).map(mapIteration).reverse();
-        }
-        return field;
-    });
-}
-function mapIteration(i) {
-    return { id: i.id, title: i.title, startDate: i.startDate, duration: i.duration };
-}
-function normalizeItem(node) {
-    const fieldValues = [];
-    for (const fv of node.fieldValues?.nodes ?? []) {
-        const fieldName = fv.field?.name;
-        if (!fieldName)
-            continue;
-        const base = { fieldName, updatedAt: fv.updatedAt };
-        switch (fv.__typename) {
-            case "ProjectV2ItemFieldSingleSelectValue":
-                base.singleSelect = { name: fv.name, optionId: fv.optionId };
-                break;
-            case "ProjectV2ItemFieldIterationValue":
-                base.iteration = { title: fv.title, iterationId: fv.iterationId };
-                break;
-            case "ProjectV2ItemFieldNumberValue":
-                base.number = fv.number;
-                break;
-            case "ProjectV2ItemFieldTextValue":
-                base.text = fv.text;
-                break;
-            case "ProjectV2ItemFieldDateValue":
-                base.date = fv.date;
-                break;
-            default:
-                continue;
-        }
-        fieldValues.push(base);
-    }
-    let content;
-    const c = node.content;
-    if (c && (c.__typename === "Issue" || c.__typename === "PullRequest")) {
-        content = {
-            type: c.__typename,
-            nodeId: c.id,
-            number: c.number,
-            title: c.title,
-            url: c.url,
-            state: c.state,
-            merged: c.merged,
-            closedAt: c.closedAt ?? null,
-            updatedAt: c.updatedAt,
-            repoOwner: c.repository.owner.login,
-            repoName: c.repository.name,
-            assignees: (c.assignees?.nodes ?? []).map((a) => a.login),
-            subIssues: c.subIssuesSummary
-                ? {
-                    total: c.subIssuesSummary.total,
-                    completed: c.subIssuesSummary.completed,
-                    percentCompleted: c.subIssuesSummary.percentCompleted,
-                }
-                : undefined,
-            parent: c.parent ? { number: c.parent.number, title: c.parent.title, url: c.parent.url } : undefined,
-        };
-    }
-    return { id: node.id, updatedAt: node.updatedAt, fieldValues, content };
 }
 
 ;// CONCATENATED MODULE: ./src/util/audit.ts
