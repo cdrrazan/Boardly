@@ -18,7 +18,16 @@
     "sprint",
     "kanban"
   ],
+  "author": "cdrrazan",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cdrrazan/gh-project-autom8er.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cdrrazan/gh-project-autom8er/issues"
+  },
+  "homepage": "https://github.com/cdrrazan/gh-project-autom8er#readme",
   "engines": {
     "node": ">=20"
   },
