@@ -11,7 +11,7 @@ You're about to let a bot move cards and comment on issues on your live project.
 Add `dry-run: "true"` to the step:
 
 ```yaml
-- uses: cdrrazan/gh-project-autom8er@v0
+- uses: cdrrazan/boardly@v0
   with:
     token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
     config-path: .github/project-automation.yml

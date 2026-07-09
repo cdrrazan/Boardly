@@ -27,23 +27,23 @@ jobs:
     if: github.event.schedule == '0 7 * * 1-5'
     runs-on: ubuntu-latest
     steps:
-      - uses: cdrrazan/gh-project-autom8er@v0
+      - uses: cdrrazan/boardly@v0
         with: { token: "${{ secrets.PROJECT_AUTOMATION_TOKEN }}", only: standup }
 
   sort:
     if: github.event.schedule == '0 * * * *'
     runs-on: ubuntu-latest
     steps:
-      - uses: cdrrazan/gh-project-autom8er@v0
+      - uses: cdrrazan/boardly@v0
         with: { token: "${{ secrets.PROJECT_AUTOMATION_TOKEN }}", only: priority-sort }
 
   sprint-boundary:
     if: github.event.schedule == '0 6 * * 1'
     runs-on: ubuntu-latest
     steps:
-      - uses: cdrrazan/gh-project-autom8er@v0
+      - uses: cdrrazan/boardly@v0
         with: { token: "${{ secrets.PROJECT_AUTOMATION_TOKEN }}", only: rollover }
-      - uses: cdrrazan/gh-project-autom8er@v0
+      - uses: cdrrazan/boardly@v0
         with: { token: "${{ secrets.PROJECT_AUTOMATION_TOKEN }}", only: digest }
 ```
 

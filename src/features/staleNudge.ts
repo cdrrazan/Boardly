@@ -3,7 +3,7 @@ import type { RunContext } from "./context.js";
 import { statusOf, statusUpdatedAt } from "../util/project.js";
 import { daysBetween } from "../util/dates.js";
 
-const marker = (status: string) => `<!-- gh-autom8er:stale-nudge:${status.toLowerCase()} -->`;
+const marker = (status: string) => `<!-- boardly:stale-nudge:${status.toLowerCase()} -->`;
 
 /**
  * Feature 2 — Stale-card nudges.

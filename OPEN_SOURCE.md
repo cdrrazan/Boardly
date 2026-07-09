@@ -1,6 +1,6 @@
 # Open Source Note
 
-`gh-project-autom8er` is **free and open source software**, released under the [MIT License](./LICENSE). It is built in the open, and it always will be.
+Boardly is **free and open source software**, released under the [MIT License](./LICENSE). It is built in the open, and it always will be.
 
 ## What this means for you
 

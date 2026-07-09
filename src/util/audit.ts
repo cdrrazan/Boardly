@@ -31,14 +31,14 @@ export class Audit {
 
   async flush(projectTitle: string): Promise<void> {
     if (this.entries.length === 0) {
-      core.summary.addHeading("GitHub Project Autom8er", 2);
+      core.summary.addHeading("Boardly", 2);
       core.summary.addRaw(`No actions taken on **${projectTitle}**.`, true);
       await core.summary.write();
       return;
     }
 
     core.summary
-      .addHeading("GitHub Project Autom8er", 2)
+      .addHeading("Boardly", 2)
       .addRaw(
         `${this.entries.length} action(s) on **${projectTitle}**` +
           (this.dryRun ? " _(dry-run — nothing was changed)_" : ""),

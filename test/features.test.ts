@@ -68,7 +68,7 @@ test("stale-nudge does not re-nudge when a marker comment already exists for thi
   });
   const stale = makeItem([statusValue("In Progress", "2026-07-01T00:00:00Z")], { number: 5, assignees: ["alice"] });
   const client = new FakeClient().withComments([
-    { body: "<!-- gh-autom8er:stale-nudge:in progress -->\nnudge", createdAt: "2026-07-05T00:00:00Z" },
+    { body: "<!-- boardly:stale-nudge:in progress -->\nnudge", createdAt: "2026-07-05T00:00:00Z" },
   ]);
 
   await runStaleNudge(makeCtx(makeGraph([statusField(["In Progress"])], [stale]), cfg, client));

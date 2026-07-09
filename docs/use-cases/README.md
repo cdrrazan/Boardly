@@ -1,6 +1,6 @@
 # 📚 Use cases
 
-Real-world scenarios for `gh-project-autom8er`, each as a standalone recipe you can copy. Every page has: **who it's for**, the **config**, and **what happens**.
+Real-world scenarios for Boardly, each as a standalone recipe you can copy. Every page has: **who it's for**, the **config**, and **what happens**.
 
 | # | Use case | Feature(s) |
 |---|----------|-----------|

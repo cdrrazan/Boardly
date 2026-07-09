@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import type { RunContext } from "./context.js";
 import { findField, optionId, requireField, statusOf, statusUpdatedAt } from "../util/project.js";
 
-const GATE_MARKER = "<!-- gh-autom8er:sub-issue-gate -->";
+const GATE_MARKER = "<!-- boardly:sub-issue-gate -->";
 
 /**
  * Feature 7 — Sub-issue Done-gating + parent roll-up.
