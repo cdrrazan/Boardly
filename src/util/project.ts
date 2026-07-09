@@ -32,19 +32,23 @@ export function statusUpdatedAt(item: ProjectItem, cfg: Config): string | undefi
   return valueFor(item, cfg.fields.status)?.updatedAt;
 }
 
+/** The item's Priority option name, or undefined if unset. */
 export function priorityOf(item: ProjectItem, cfg: Config): string | undefined {
   return valueFor(item, cfg.fields.priority)?.singleSelect?.name;
 }
 
+/** The iteration the item is assigned to (title + id), or undefined if unset. */
 export function iterationOf(item: ProjectItem, cfg: Config): { title: string; iterationId: string } | undefined {
   return valueFor(item, cfg.fields.iteration)?.iteration;
 }
 
+/** The item's Estimate value, or undefined if no estimate field is configured or set. */
 export function estimateOf(item: ProjectItem, cfg: Config): number | undefined {
   if (!cfg.fields.estimate) return undefined;
   return valueFor(item, cfg.fields.estimate)?.number;
 }
 
+/** True when the item's status is one of `doneStatuses` (case-insensitive). */
 export function isDone(item: ProjectItem, cfg: Config): boolean {
   const status = statusOf(item, cfg);
   if (!status) return false;

@@ -39399,15 +39399,25 @@ class Audit {
     constructor(dryRun) {
         this.dryRun = dryRun;
     }
+    /**
+     * Record one action. Call this *before* performing the mutation so the trail
+     * is identical whether or not `dryRun` suppresses the change.
+     * @param feature Feature key (e.g. "rollover").
+     * @param action Short verb (e.g. "move-iteration", "comment").
+     * @param target Human-readable subject (e.g. "#12 Fix flaky test").
+     * @param detail What changed / why.
+     */
     record(feature, action, target, detail) {
         const applied = !this.dryRun;
         this.entries.push({ feature, action, target, detail, applied });
         const prefix = this.dryRun ? "[dry-run] would " : "";
         core.info(`${prefix}${feature} · ${action} · ${target} — ${detail}`);
     }
+    /** Number of actions recorded so far (surfaced as the action's `actions-count` output). */
     get count() {
         return this.entries.length;
     }
+    /** Render the accumulated actions as a table in the Actions job summary. */
     async flush(projectTitle) {
         if (this.entries.length === 0) {
             core.summary.addHeading("Boardly", 2);
@@ -39467,17 +39477,21 @@ function statusOf(item, cfg) {
 function statusUpdatedAt(item, cfg) {
     return valueFor(item, cfg.fields.status)?.updatedAt;
 }
+/** The item's Priority option name, or undefined if unset. */
 function priorityOf(item, cfg) {
     return valueFor(item, cfg.fields.priority)?.singleSelect?.name;
 }
+/** The iteration the item is assigned to (title + id), or undefined if unset. */
 function iterationOf(item, cfg) {
     return valueFor(item, cfg.fields.iteration)?.iteration;
 }
+/** The item's Estimate value, or undefined if no estimate field is configured or set. */
 function estimateOf(item, cfg) {
     if (!cfg.fields.estimate)
         return undefined;
     return valueFor(item, cfg.fields.estimate)?.number;
 }
+/** True when the item's status is one of `doneStatuses` (case-insensitive). */
 function isDone(item, cfg) {
     const status = statusOf(item, cfg);
     if (!status)
@@ -39535,9 +39549,11 @@ async function runRollover(ctx) {
 
 ;// CONCATENATED MODULE: ./src/util/dates.ts
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+/** Fractional number of days from `from` to `to` (negative if `to` precedes `from`). */
 function daysBetween(from, to) {
     return (to.getTime() - from.getTime()) / MS_PER_DAY;
 }
+/** Fractional number of hours from `from` to `to` (negative if `to` precedes `from`). */
 function hoursBetween(from, to) {
     return (to.getTime() - from.getTime()) / (60 * 60 * 1000);
 }
@@ -39873,6 +39889,7 @@ function sameOrder(a, b) {
 
 
 
+/** Maps each feature key (also the accepted values of the `only` input) to its runner. */
 const RUNNERS = {
     rollover: runRollover,
     "stale-nudge": runStaleNudge,
@@ -39881,6 +39898,7 @@ const RUNNERS = {
     standup: runStandup,
     "priority-sort": runPrioritySort,
 };
+/** Whether a feature is turned on in config. */
 function isEnabled(cfg, key) {
     switch (key) {
         case "rollover":
@@ -39897,6 +39915,12 @@ function isEnabled(cfg, key) {
             return Boolean(cfg.features.prioritySort?.enabled);
     }
 }
+/**
+ * Action entry point: read inputs, load + validate config, fetch the project
+ * once, then run either the single feature named by `only` or every enabled
+ * feature. A failing feature is reported but does not abort the others; the
+ * audit trail is always flushed.
+ */
 async function run() {
     const token = core.getInput("token", { required: true });
     const configPath = core.getInput("config-path");

@@ -13,6 +13,7 @@ import { runPrioritySort } from "./features/prioritySort.js";
 
 type FeatureKey = "rollover" | "stale-nudge" | "sub-issue-gate" | "digest" | "standup" | "priority-sort";
 
+/** Maps each feature key (also the accepted values of the `only` input) to its runner. */
 const RUNNERS: Record<FeatureKey, (ctx: RunContext) => Promise<void>> = {
   rollover: runRollover,
   "stale-nudge": runStaleNudge,
@@ -22,6 +23,7 @@ const RUNNERS: Record<FeatureKey, (ctx: RunContext) => Promise<void>> = {
   "priority-sort": runPrioritySort,
 };
 
+/** Whether a feature is turned on in config. */
 function isEnabled(cfg: RunContext["cfg"], key: FeatureKey): boolean {
   switch (key) {
     case "rollover":
@@ -39,6 +41,12 @@ function isEnabled(cfg: RunContext["cfg"], key: FeatureKey): boolean {
   }
 }
 
+/**
+ * Action entry point: read inputs, load + validate config, fetch the project
+ * once, then run either the single feature named by `only` or every enabled
+ * feature. A failing feature is reported but does not abort the others; the
+ * audit trail is always flushed.
+ */
 async function run(): Promise<void> {
   const token = core.getInput("token", { required: true });
   const configPath = core.getInput("config-path");
