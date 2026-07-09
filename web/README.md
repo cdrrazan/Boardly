@@ -45,6 +45,6 @@ python3 -m http.server -d web 8080   # then visit http://localhost:8080
 
 ## Notes
 
-- **Self-contained & CSP-safe:** no external scripts, fonts, or stylesheets, so the strict Content-Security-Policy in `_headers` holds and the page loads fast anywhere.
+- **Fonts:** the UI font is **Google Sans**, loaded from Google Fonts (`fonts.googleapis.com` / `fonts.gstatic.com`). The Content-Security-Policy in `_headers` allows exactly those two hosts for `style-src`/`font-src`; everything else stays same-origin. Roboto and the system stack are the fallbacks while the font loads.
 - **Theme:** respects the visitor's OS light/dark preference and remembers their manual toggle.
 - **Social image:** `og.svg` is an SVG; some networks prefer PNG for link previews — export it to `og.png` and update the `og:image` / `twitter:image` paths in `index.html` if you want maximum compatibility.
