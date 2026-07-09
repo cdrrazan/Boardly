@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boardly — Put your GitHub Projects board on autopilot</title>
+  <meta name="description" content="Boardly is a free, open-source GitHub Action that automates GitHub Projects (v2): sprint rollover, stale-card nudges, sub-issue gating, digests, standups, priority sorting, and Slack/email notifications — all from one YAML file." />
+  <meta name="theme-color" content="#0b0d12" />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Boardly — Put your GitHub Projects board on autopilot" />
+  <meta property="og:description" content="A free, open-source GitHub Action that automates GitHub Projects (v2) from one YAML file." />
+  <meta property="og:image" content="./og.svg" />
+  <meta property="og:url" content="https://boardly.pages.dev/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Boardly — GitHub Projects on autopilot" />
+  <meta name="twitter:description" content="Sprint rollover, stale nudges, digests, standups, priority sorting & notifications — from one YAML file." />
+  <meta name="twitter:image" content="./og.svg" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ===== Nav ===== -->
+  <header class="nav" id="top">
+    <div class="container nav__inner">
+      <a class="brand" href="#top" aria-label="Boardly home">
+        <span class="brand__logo" aria-hidden="true">🤖</span>
+        <span class="brand__name">Boardly</span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#config">Config</a>
+        <a href="#use-cases">Use cases</a>
+        <a href="https://github.com/cdrrazan/Boardly#readme" target="_blank" rel="noopener">Docs ↗</a>
+      </nav>
+
+      <div class="nav__actions">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme">
+          <span class="theme-icon" aria-hidden="true"></span>
+        </button>
+        <a class="btn btn--ghost hide-sm" href="https://github.com/sponsors/cdrrazan" target="_blank" rel="noopener">Sponsor</a>
+        <a class="btn btn--primary" href="https://github.com/cdrrazan/Boardly" target="_blank" rel="noopener">
+          <span class="gh-mark" aria-hidden="true"></span> Star on GitHub
+        </a>
+        <button class="icon-btn nav__burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="nav__mobile" id="mobile-menu" hidden>
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#config">Config</a>
+      <a href="#use-cases">Use cases</a>
+      <a href="https://github.com/cdrrazan/Boardly#readme" target="_blank" rel="noopener">Docs ↗</a>
+      <a href="https://github.com/sponsors/cdrrazan" target="_blank" rel="noopener">Sponsor</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+      <div class="hero__glow" aria-hidden="true"></div>
+      <div class="container hero__inner">
+        <div class="hero__copy reveal">
+          <a class="pill" href="https://github.com/cdrrazan/Boardly/releases" target="_blank" rel="noopener">
+            <span class="pill__dot"></span> Open source · MIT · v1.0
+          </a>
+          <h1 class="hero__title">Put your GitHub Projects board on <span class="grad">autopilot</span>.</h1>
+          <p class="hero__sub">
+            Boardly is a free, open-source <strong>GitHub Action</strong> that automates <strong>GitHub Projects (v2)</strong> —
+            sprint rollover, stale-card nudges, sub-issue gating, digests, standups, priority sorting, and Slack/email
+            notifications — all from one YAML file.
+          </p>
+          <div class="hero__cta">
+            <a class="btn btn--primary btn--lg" href="https://github.com/cdrrazan/Boardly#-quick-start" target="_blank" rel="noopener">Get started free</a>
+            <a class="btn btn--ghost btn--lg" href="#how">See how it works</a>
+          </div>
+          <ul class="hero__meta">
+            <li>⚡ No server to run</li>
+            <li>🔒 Your token, your scopes</li>
+            <li>📋 Full audit trail</li>
+          </ul>
+        </div>
+
+        <div class="hero__art reveal">
+          <div class="window" role="img" aria-label="Example Boardly configuration file">
+            <div class="window__bar">
+              <span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span>
+              <span class="window__title">.github/project-automation.yml</span>
+              <button class="copy" data-copy="#hero-code" type="button" aria-label="Copy config">Copy</button>
+            </div>
+            <pre class="code" id="hero-code"><code><span class="c-k">project</span>:
+  <span class="c-k">owner</span>: my-org
+  <span class="c-k">number</span>: <span class="c-n">5</span>
+<span class="c-k">features</span>:
+  <span class="c-k">rollover</span>: { <span class="c-k">enabled</span>: <span class="c-b">true</span> }
+  <span class="c-k">staleNudge</span>:
+    <span class="c-k">enabled</span>: <span class="c-b">true</span>
+    <span class="c-k">rules</span>:
+      - { <span class="c-k">status</span>: <span class="c-s">"In Progress"</span>, <span class="c-k">days</span>: <span class="c-n">3</span> }
+  <span class="c-k">digest</span>: { <span class="c-k">enabled</span>: <span class="c-b">true</span>, <span class="c-k">postTo</span>: { <span class="c-k">issue</span>: <span class="c-n">42</span> } }
+<span class="c-c"># ...and it just runs on a schedule 🎉</span></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee__track">
+          <span>Sprint rollover</span><span>•</span><span>Stale nudges</span><span>•</span><span>Sub-issue gating</span><span>•</span>
+          <span>Sprint digest</span><span>•</span><span>Daily standup</span><span>•</span><span>Priority sort</span><span>•</span>
+          <span>Slack &amp; email</span><span>•</span><span>Audit trail</span><span>•</span><span>Dry-run</span><span>•</span>
+          <span>Sprint rollover</span><span>•</span><span>Stale nudges</span><span>•</span><span>Sub-issue gating</span><span>•</span>
+          <span>Sprint digest</span><span>•</span><span>Daily standup</span><span>•</span><span>Priority sort</span><span>•</span>
+          <span>Slack &amp; email</span><span>•</span><span>Audit trail</span><span>•</span><span>Dry-run</span><span>•</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Features ===== -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="eyebrow">Everything your board needs</p>
+          <h2>Seven automations, one config file</h2>
+          <p class="lede">Turn each feature on or off in YAML. Boardly reads your board once, applies your rules, and records every action.</p>
+        </div>
+        <div class="grid grid--features">
+          <article class="card reveal"><div class="card__icon">🔁</div><h3>Sprint rollover</h3><p>When an iteration ends, unfinished cards move into the next sprint automatically — nothing stranded in a closed iteration.</p></article>
+          <article class="card reveal"><div class="card__icon">🔔</div><h3>Stale-card nudges</h3><p>@-mention owners when a card sits in a column too long. De-duped, so it never spams the same card twice.</p></article>
+          <article class="card reveal"><div class="card__icon">🧩</div><h3>Sub-issue gating + roll-up</h3><p>Block a card from staying <em>Done</em> while sub-issues are open, and write live completion&nbsp;% into a progress field.</p></article>
+          <article class="card reveal"><div class="card__icon">🏁</div><h3>Sprint digest</h3><p>At iteration end, post completed-vs-carried-over counts and velocity to an issue, Slack, or email.</p></article>
+          <article class="card reveal"><div class="card__icon">🗓️</div><h3>Daily standup</h3><p>A summary of what moved in the last N hours, grouped by assignee — async standup without the meeting.</p></article>
+          <article class="card reveal"><div class="card__icon">🔼</div><h3>Priority auto-sort</h3><p>Keep the board ordered by your Priority field so the most important work always floats to the top.</p></article>
+          <article class="card reveal"><div class="card__icon">📣</div><h3>Slack &amp; email</h3><p>Deliver digests, standups, and alerts to a Slack channel and inboxes — not just GitHub comments.</p></article>
+          <article class="card reveal"><div class="card__icon">📋</div><h3>Audit trail + dry-run</h3><p>Every action lands in the job summary. Preview everything with <code>dry-run</code> before it touches your board.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== How it works ===== -->
+    <section class="section section--alt" id="how">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="eyebrow">Live in minutes</p>
+          <h2>How it works</h2>
+          <p class="lede">No app to host, no database, no dashboard to babysit. It runs as a scheduled GitHub Action inside your own repo.</p>
+        </div>
+        <ol class="steps">
+          <li class="step reveal"><span class="step__n">1</span><div><h3>Create a token</h3><p>A fine-grained PAT or App token with <em>Projects</em> + <em>Issues</em> access, stored as an encrypted secret.</p></div></li>
+          <li class="step reveal"><span class="step__n">2</span><div><h3>Add your config</h3><p>Describe your rules in <code>.github/project-automation.yml</code> — start from the example and tweak.</p></div></li>
+          <li class="step reveal"><span class="step__n">3</span><div><h3>Add a workflow</h3><p>One <code>uses: cdrrazan/Boardly@v1</code> step on a cron. Run with <code>dry-run</code> first to preview.</p></div></li>
+          <li class="step reveal"><span class="step__n">4</span><div><h3>Ship it</h3><p>Flip dry-run off. Boardly keeps your board honest on every schedule, and logs what it did.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== Config showcase ===== -->
+    <section class="section" id="config">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="eyebrow">Copy, paste, done</p>
+          <h2>The whole setup is two files</h2>
+        </div>
+        <div class="grid grid--code">
+          <div class="window reveal">
+            <div class="window__bar"><span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span><span class="window__title">.github/project-automation.yml</span><button class="copy" data-copy="#cfg-code" type="button">Copy</button></div>
+            <pre class="code" id="cfg-code"><code><span class="c-k">project</span>: { <span class="c-k">owner</span>: my-org, <span class="c-k">type</span>: org, <span class="c-k">number</span>: <span class="c-n">5</span> }
+<span class="c-k">doneStatuses</span>: [<span class="c-s">"Done"</span>, <span class="c-s">"Released"</span>]
+<span class="c-k">features</span>:
+  <span class="c-k">staleNudge</span>:
+    <span class="c-k">enabled</span>: <span class="c-b">true</span>
+    <span class="c-k">rules</span>:
+      - { <span class="c-k">status</span>: <span class="c-s">"In Review"</span>, <span class="c-k">days</span>: <span class="c-n">2</span> }
+  <span class="c-k">prioritySort</span>: { <span class="c-k">enabled</span>: <span class="c-b">true</span>, <span class="c-k">order</span>: [<span class="c-s">"High"</span>, <span class="c-s">"Low"</span>] }
+<span class="c-k">notifications</span>:
+  <span class="c-k">slack</span>: { <span class="c-k">enabled</span>: <span class="c-b">true</span>, <span class="c-k">webhookEnv</span>: SLACK_WEBHOOK_URL }</code></pre>
+          </div>
+          <div class="window reveal">
+            <div class="window__bar"><span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span><span class="window__title">.github/workflows/boardly.yml</span><button class="copy" data-copy="#wf-code" type="button">Copy</button></div>
+            <pre class="code" id="wf-code"><code><span class="c-k">on</span>:
+  <span class="c-k">schedule</span>: [{ <span class="c-k">cron</span>: <span class="c-s">"0 8 * * 1-5"</span> }]
+<span class="c-k">permissions</span>: { <span class="c-k">contents</span>: read, <span class="c-k">issues</span>: write }
+<span class="c-k">jobs</span>:
+  <span class="c-k">automate</span>:
+    <span class="c-k">runs-on</span>: ubuntu-latest
+    <span class="c-k">steps</span>:
+      - <span class="c-k">uses</span>: cdrrazan/Boardly@v1
+        <span class="c-k">with</span>:
+          <span class="c-k">token</span>: <span class="c-s">${{ secrets.PROJECT_AUTOMATION_TOKEN }}</span>
+        <span class="c-k">env</span>:
+          <span class="c-k">SLACK_WEBHOOK_URL</span>: <span class="c-s">${{ secrets.SLACK_WEBHOOK_URL }}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Use cases ===== -->
+    <section class="section section--alt" id="use-cases">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="eyebrow">Real-world recipes</p>
+          <h2>Ready-made for how teams actually work</h2>
+          <p class="lede">Thirteen copy-pasteable recipes in the docs — here are a few favorites.</p>
+        </div>
+        <div class="grid grid--uses">
+          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/01-sprint-rollover.md" target="_blank" rel="noopener"><h3>Carry work into the next sprint →</h3><p>Never hand-move unfinished tickets on Monday again.</p></a>
+          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/06-daily-standup.md" target="_blank" rel="noopener"><h3>Async daily standup →</h3><p>What moved yesterday, grouped by assignee — across time zones.</p></a>
+          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/13-notifications.md" target="_blank" rel="noopener"><h3>Digests in Slack &amp; inbox →</h3><p>Deliver sprint reports where your team already lives.</p></a>
+          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/08-dry-run-preview.md" target="_blank" rel="noopener"><h3>Preview safely with dry-run →</h3><p>See exactly what it would do before it does anything.</p></a>
+          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/03-sub-issue-gating.md" target="_blank" rel="noopener"><h3>Stop premature “Done” →</h3><p>Gate epics until every sub-issue is closed.</p></a>
+          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/tree/main/docs/use-cases" target="_blank" rel="noopener"><h3>Browse all 13 recipes →</h3><p>The full cookbook in the repo docs.</p></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Open source ===== -->
+    <section class="section" id="open-source">
+      <div class="container os">
+        <div class="os__copy reveal">
+          <p class="eyebrow">Free &amp; open, forever</p>
+          <h2>No paywall. No telemetry. No lock-in.</h2>
+          <p class="lede">Boardly is MIT-licensed and runs entirely inside your GitHub. It only ever uses the token you provide, with the scopes you grant — and every action is auditable.</p>
+          <ul class="checks">
+            <li>Self-contained GitHub Action driven by a plain YAML file you own</li>
+            <li>Uses your token &amp; scopes — nothing phones home</li>
+            <li>Transparent audit trail on every run</li>
+            <li>48 unit tests &amp; CI gating every change</li>
+          </ul>
+          <div class="hero__cta">
+            <a class="btn btn--primary" href="https://github.com/cdrrazan/Boardly" target="_blank" rel="noopener">View source</a>
+            <a class="btn btn--ghost" href="https://github.com/sponsors/cdrrazan" target="_blank" rel="noopener">❤ Sponsor</a>
+          </div>
+        </div>
+        <div class="os__stats reveal">
+          <div class="stat"><span class="stat__n">7+</span><span class="stat__l">automations</span></div>
+          <div class="stat"><span class="stat__n">13</span><span class="stat__l">use-case recipes</span></div>
+          <div class="stat"><span class="stat__n">48</span><span class="stat__l">passing tests</span></div>
+          <div class="stat"><span class="stat__n">MIT</span><span class="stat__l">licensed</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Final CTA ===== -->
+    <section class="cta">
+      <div class="container cta__inner reveal">
+        <h2>Automate your board in minutes.</h2>
+        <p>Point Boardly at a project, add a YAML file, and let it keep things tidy while you ship.</p>
+        <div class="hero__cta">
+          <a class="btn btn--primary btn--lg" href="https://github.com/cdrrazan/Boardly#-quick-start" target="_blank" rel="noopener">Get started free</a>
+          <a class="btn btn--ghost btn--lg" href="https://github.com/cdrrazan/Boardly" target="_blank" rel="noopener">Star on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <a class="brand" href="#top"><span class="brand__logo" aria-hidden="true">🤖</span><span class="brand__name">Boardly</span></a>
+        <p>GitHub Projects, on autopilot.</p>
+      </div>
+      <nav class="footer__cols" aria-label="Footer">
+        <div><h4>Product</h4><a href="#features">Features</a><a href="#how">How it works</a><a href="#config">Config</a></div>
+        <div><h4>Docs</h4>
+          <a href="https://github.com/cdrrazan/Boardly#readme" target="_blank" rel="noopener">README</a>
+          <a href="https://github.com/cdrrazan/Boardly/tree/main/docs/use-cases" target="_blank" rel="noopener">Use cases</a>
+          <a href="https://github.com/cdrrazan/Boardly/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+        </div>
+        <div><h4>Open source</h4>
+          <a href="https://github.com/cdrrazan/Boardly" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/cdrrazan/Boardly/blob/main/SECURITY.md" target="_blank" rel="noopener">Security</a>
+          <a href="https://github.com/cdrrazan/Boardly/blob/main/LICENSE" target="_blank" rel="noopener">License (MIT)</a>
+          <a href="https://github.com/sponsors/cdrrazan" target="_blank" rel="noopener">Sponsor</a>
+        </div>
+      </nav>
+    </div>
+    <div class="container footer__bottom">
+      <span>© <span id="year">2026</span> Boardly · MIT Licensed</span>
+      <span>Built with ❤ for teams who'd rather ship than babysit a board.</span>
+    </div>
+  </footer>
+
+  <script src="./main.js" defer></script>
+</body>
+</html>
