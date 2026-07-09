@@ -16,7 +16,7 @@ A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](./CONTRIBUTING.md)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](./OPEN_SOURCE.md)
 
-[Quick start](#-quick-start) · [Features](#-features) · [Use cases](./docs/use-cases) · [Config](#%EF%B8%8F-configuration) · [Roadmap](./ROADMAP.md) · [Contributing](./CONTRIBUTING.md) · [Sponsor](#-support-the-project)
+[Quick start](#-quick-start) · [Features](#-features) · [Use cases](#-use-cases) · [Config](#%EF%B8%8F-configuration) · [Roadmap](./ROADMAP.md) · [Contributing](./CONTRIBUTING.md) · [Sponsor](#-support-the-project)
 
 </div>
 
@@ -53,7 +53,26 @@ flowchart LR
 | 🔼 | **Priority auto-sort** | Reorder the board so higher-priority cards float to the top. |
 | 📋 | **Audit trail** | Every action (or, in `dry-run`, every _intended_ action) is written to the job summary. |
 
-➡️ **See detailed, real-world walkthroughs in [docs/use-cases](./docs/use-cases).**
+## 📚 Use cases
+
+Every feature comes with a standalone, copy-pasteable recipe — **who it's for**, the **config**, and **what happens**. Browse them all in [`docs/use-cases`](./docs/use-cases), or jump straight in:
+
+| # | Use case | Feature(s) |
+|:--:|----------|-----------|
+| 01 | [Carry unfinished work into the next sprint](./docs/use-cases/01-sprint-rollover.md) | 🔁 Rollover |
+| 02 | [Nudge owners about stale cards](./docs/use-cases/02-stale-card-nudges.md) | 🔔 Stale nudges |
+| 03 | [Stop premature "Done" on parent issues](./docs/use-cases/03-sub-issue-gating.md) | 🧩 Sub-issue gate |
+| 04 | [Show live epic progress on the board](./docs/use-cases/04-progress-rollup.md) | 🧩 Sub-issue roll-up |
+| 05 | [Auto-post a sprint retro digest](./docs/use-cases/05-sprint-digest.md) | 🏁 Digest |
+| 06 | [Async daily standup for a distributed team](./docs/use-cases/06-daily-standup.md) | 🗓️ Standup |
+| 07 | [Keep the backlog sorted by priority](./docs/use-cases/07-priority-sort.md) | 🔼 Priority sort |
+| 08 | [Preview everything safely with dry-run](./docs/use-cases/08-dry-run-preview.md) | 📋 All + audit |
+| 09 | [Automate a project spanning many repos](./docs/use-cases/09-multi-repo-project.md) | ⚙️ All |
+| 10 | [Different schedules per feature](./docs/use-cases/10-per-feature-schedules.md) | ⚙️ All |
+| 11 | [Solo maintainer / personal project board](./docs/use-cases/11-personal-project.md) | ⚙️ All |
+| 12 | [Escalate cards ignored after a nudge](./docs/use-cases/12-escalation-with-revert.md) | 🔔 Stale + 🧩 gate |
+
+> New here? Start with [01 · Sprint rollover](./docs/use-cases/01-sprint-rollover.md) and [08 · Dry-run preview](./docs/use-cases/08-dry-run-preview.md).
 
 ## ⚡ Quick start
 
