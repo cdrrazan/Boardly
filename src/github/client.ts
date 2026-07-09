@@ -1,0 +1,176 @@
+import * as github from "@actions/github";
+import type {
+  FieldValue,
+  IssueContent,
+  ProjectField,
+  ProjectGraph,
+  ProjectItem,
+} from "../types.js";
+import {
+  projectQuery,
+  setIterationMutation,
+  setNumberMutation,
+  setPositionMutation,
+  setSingleSelectMutation,
+} from "./queries.js";
+
+type Octokit = ReturnType<typeof github.getOctokit>;
+
+// Sub-issue fields (`subIssuesSummary`, `parent`) live behind a feature flag header.
+const SUB_ISSUE_HEADERS = { "GraphQL-Features": "sub_issues" };
+
+/** Thin wrapper over Octokit that speaks the Projects (v2) GraphQL API. */
+export class ProjectClient {
+  private readonly octokit: Octokit;
+
+  constructor(token: string) {
+    this.octokit = github.getOctokit(token);
+  }
+
+  /** Fetch the whole project (all fields + all items, paged) as a normalized graph. */
+  async fetchProject(owner: string, type: "org" | "user", number: number): Promise<ProjectGraph> {
+    const query = projectQuery(type);
+    const items: ProjectItem[] = [];
+    let cursor: string | null = null;
+    let head: { id: string; title: string; fields: ProjectField[] } | undefined;
+
+    do {
+      const resp: any = await this.octokit.graphql(query, {
+        owner,
+        number,
+        cursor,
+        headers: SUB_ISSUE_HEADERS,
+      });
+      const project = type === "org" ? resp.organization?.projectV2 : resp.user?.projectV2;
+      if (!project) {
+        throw new Error(
+          `Project #${number} not found for ${type} "${owner}". Check project.owner/type/number and that the token can read it.`,
+        );
+      }
+      if (!head) {
+        head = { id: project.id, title: project.title, fields: normalizeFields(project.fields.nodes) };
+      }
+      for (const node of project.items.nodes) {
+        items.push(normalizeItem(node));
+      }
+      cursor = project.items.pageInfo.hasNextPage ? project.items.pageInfo.endCursor : null;
+    } while (cursor);
+
+    return { id: head!.id, title: head!.title, fields: head!.fields, items };
+  }
+
+  async setSingleSelect(projectId: string, itemId: string, fieldId: string, optionId: string): Promise<void> {
+    await this.octokit.graphql(setSingleSelectMutation, { projectId, itemId, fieldId, optionId });
+  }
+
+  async setIteration(projectId: string, itemId: string, fieldId: string, iterationId: string): Promise<void> {
+    await this.octokit.graphql(setIterationMutation, { projectId, itemId, fieldId, iterationId });
+  }
+
+  async setNumber(projectId: string, itemId: string, fieldId: string, value: number): Promise<void> {
+    await this.octokit.graphql(setNumberMutation, { projectId, itemId, fieldId, number: value });
+  }
+
+  async setPosition(projectId: string, itemId: string, afterId: string | null): Promise<void> {
+    await this.octokit.graphql(setPositionMutation, { projectId, itemId, afterId });
+  }
+
+  /** Create a comment on an issue/PR. Returns the created comment's body marker safe id. */
+  async comment(owner: string, repo: string, issueNumber: number, body: string): Promise<void> {
+    await this.octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
+  }
+
+  /** List recent comment bodies on an issue/PR (used for de-duplicating nudges). */
+  async listComments(owner: string, repo: string, issueNumber: number): Promise<{ body: string; createdAt: string }[]> {
+    const resp = await this.octokit.rest.issues.listComments({
+      owner,
+      repo,
+      issue_number: issueNumber,
+      per_page: 100,
+    });
+    return resp.data.map((c) => ({ body: c.body ?? "", createdAt: c.created_at }));
+  }
+
+  /** Create a new issue and return its number. */
+  async createIssue(owner: string, repo: string, title: string, body: string, labels: string[]): Promise<number> {
+    const resp = await this.octokit.rest.issues.create({ owner, repo, title, body, labels });
+    return resp.data.number;
+  }
+}
+
+function normalizeFields(nodes: any[]): ProjectField[] {
+  return nodes
+    .filter((n) => n && n.id)
+    .map((n) => {
+      const field: ProjectField = { id: n.id, name: n.name, dataType: n.dataType ?? "OTHER" };
+      if (n.options) field.options = n.options.map((o: any) => ({ id: o.id, name: o.name }));
+      if (n.configuration) {
+        field.iterations = (n.configuration.iterations ?? []).map(mapIteration);
+        // GitHub returns completed iterations oldest-first; reverse to most-recent-first.
+        field.completedIterations = (n.configuration.completedIterations ?? []).map(mapIteration).reverse();
+      }
+      return field;
+    });
+}
+
+function mapIteration(i: any) {
+  return { id: i.id, title: i.title, startDate: i.startDate, duration: i.duration };
+}
+
+function normalizeItem(node: any): ProjectItem {
+  const fieldValues: FieldValue[] = [];
+  for (const fv of node.fieldValues?.nodes ?? []) {
+    const fieldName = fv.field?.name;
+    if (!fieldName) continue;
+    const base: FieldValue = { fieldName, updatedAt: fv.updatedAt };
+    switch (fv.__typename) {
+      case "ProjectV2ItemFieldSingleSelectValue":
+        base.singleSelect = { name: fv.name, optionId: fv.optionId };
+        break;
+      case "ProjectV2ItemFieldIterationValue":
+        base.iteration = { title: fv.title, iterationId: fv.iterationId };
+        break;
+      case "ProjectV2ItemFieldNumberValue":
+        base.number = fv.number;
+        break;
+      case "ProjectV2ItemFieldTextValue":
+        base.text = fv.text;
+        break;
+      case "ProjectV2ItemFieldDateValue":
+        base.date = fv.date;
+        break;
+      default:
+        continue;
+    }
+    fieldValues.push(base);
+  }
+
+  let content: IssueContent | undefined;
+  const c = node.content;
+  if (c && (c.__typename === "Issue" || c.__typename === "PullRequest")) {
+    content = {
+      type: c.__typename,
+      nodeId: c.id,
+      number: c.number,
+      title: c.title,
+      url: c.url,
+      state: c.state,
+      merged: c.merged,
+      closedAt: c.closedAt ?? null,
+      updatedAt: c.updatedAt,
+      repoOwner: c.repository.owner.login,
+      repoName: c.repository.name,
+      assignees: (c.assignees?.nodes ?? []).map((a: any) => a.login),
+      subIssues: c.subIssuesSummary
+        ? {
+            total: c.subIssuesSummary.total,
+            completed: c.subIssuesSummary.completed,
+            percentCompleted: c.subIssuesSummary.percentCompleted,
+          }
+        : undefined,
+      parent: c.parent ? { number: c.parent.number, title: c.parent.title, url: c.parent.url } : undefined,
+    };
+  }
+
+  return { id: node.id, updatedAt: node.updatedAt, fieldValues, content };
+}
