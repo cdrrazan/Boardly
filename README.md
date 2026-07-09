@@ -4,11 +4,12 @@
 
 ### Put your GitHub Projects board on autopilot.
 
-A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint rollover, stale-card nudges, sub-issue gating, digests, standups, and priority sorting — all from one YAML file.
+A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint rollover, stale-card nudges, sub-issue gating, digests, standups, priority sorting, and Slack/email notifications — all from one YAML file.
 
 <br/>
 
 [![CI](https://github.com/cdrrazan/Boardly/actions/workflows/ci.yml/badge.svg)](https://github.com/cdrrazan/Boardly/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/cdrrazan/Boardly?sort=semver&color=success)](https://github.com/cdrrazan/Boardly/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Made with TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -99,6 +100,8 @@ flowchart TD
        config-path: .github/project-automation.yml
        dry-run: "true"   # preview first; remove once it looks right
    ```
+
+> **Versioning:** pin to **`@v1`** to always get the latest `v1.x` (bug-fixes and features, no breaking changes), or **`@v1.0.0`** to freeze an exact version.
 
 ## 🧾 Inputs & outputs
 
