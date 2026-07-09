@@ -6,7 +6,7 @@ import { hoursBetween } from "../util/dates.js";
 import { postReport } from "./post.js";
 
 /**
- * Feature 9 — Daily standup summary.
+ * Daily standup summary.
  *
  * Lists what moved in the look-back window (default 24h), grouped by assignee,
  * so a team can see at a glance what changed since yesterday.

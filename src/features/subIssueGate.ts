@@ -5,7 +5,7 @@ import { findField, optionId, requireField, statusOf, statusUpdatedAt } from "..
 const GATE_MARKER = "<!-- boardly:sub-issue-gate -->";
 
 /**
- * Feature 7 — Sub-issue Done-gating + parent roll-up.
+ * Sub-issue Done-gating + parent roll-up.
  *
  * 1. Gating: a parent item may not sit in a "done" status while it still has
  *    open sub-issues. Depending on config we either warn (comment) or revert the

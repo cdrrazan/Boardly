@@ -39473,7 +39473,7 @@ function optionId(field, name) {
 
 
 /**
- * Feature 1 — Sprint rollover.
+ * Sprint rollover.
  *
  * When an iteration ends, move every item that is still in that iteration and
  * not "done" into the next (current) iteration, so unfinished work carries over
@@ -39536,7 +39536,7 @@ function iterationHasEnded(startDate, durationDays, now) {
 
 const marker = (status) => `<!-- boardly:stale-nudge:${status.toLowerCase()} -->`;
 /**
- * Feature 2 — Stale-card nudges.
+ * Stale-card nudges.
  *
  * For each configured rule, find cards that have sat in a status longer than
  * `days` and @-mention the owners with a nudge comment. A hidden marker in the
@@ -39592,7 +39592,7 @@ function fill(template, vars) {
 
 const GATE_MARKER = "<!-- boardly:sub-issue-gate -->";
 /**
- * Feature 7 — Sub-issue Done-gating + parent roll-up.
+ * Sub-issue Done-gating + parent roll-up.
  *
  * 1. Gating: a parent item may not sit in a "done" status while it still has
  *    open sub-issues. Depending on config we either warn (comment) or revert the
@@ -39680,7 +39680,7 @@ async function postReport(ctx, target, feature, fallbackTitle, body) {
 
 
 /**
- * Feature 8 — Sprint digest.
+ * Sprint digest.
  *
  * Summarizes the most recently completed iteration: how many items were
  * completed vs carried over, and velocity (sum of estimates completed, when an
@@ -39737,7 +39737,7 @@ function sum(nums) {
 
 
 /**
- * Feature 9 — Daily standup summary.
+ * Daily standup summary.
  *
  * Lists what moved in the look-back window (default 24h), grouped by assignee,
  * so a team can see at a glance what changed since yesterday.
@@ -39794,7 +39794,7 @@ function lineFor(item, cfg) {
 
 
 /**
- * Feature 12 — Priority auto-sort.
+ * Priority auto-sort.
  *
  * Reorders the project's items so higher-priority cards float to the top,
  * following the configured priority order. Items without a recognised priority
