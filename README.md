@@ -13,13 +13,14 @@ A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint
 [![Release](https://img.shields.io/github/v/release/cdrrazan/Boardly?sort=semver&color=success)](https://github.com/cdrrazan/Boardly/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Made with TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Ruby edition](https://img.shields.io/badge/Ruby%20edition-Boardly--ruby-CC342D?logo=ruby&logoColor=white)](https://github.com/cdrrazan/Boardly-ruby)
 [![Node](https://img.shields.io/badge/Node-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![GitHub Projects v2](https://img.shields.io/badge/GitHub-Projects%20v2-181717?logo=github&logoColor=white)](https://docs.github.com/issues/planning-and-tracking-with-projects)
 [![Tests](https://img.shields.io/badge/tests-48%20passing-brightgreen.svg)](./test)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](./CONTRIBUTING.md)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](./OPEN_SOURCE.md)
 
-**[🌐 boardly.app.rsynk.com](https://boardly.app.rsynk.com)**
+**[🌐 boardly.app.rsynk.com](https://boardly.app.rsynk.com)** · 💎 **Prefer Ruby?** [cdrrazan/Boardly-ruby](https://github.com/cdrrazan/Boardly-ruby)
 
 [Quick start](#-quick-start) · [Features](#-features) · [Use cases](#-use-cases) · [Config](#%EF%B8%8F-configuration) · [Roadmap](./ROADMAP.md) · [Contributing](./CONTRIBUTING.md) · [Sponsor](#-support-the-project)
 
