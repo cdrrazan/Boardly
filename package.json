@@ -22,12 +22,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cdrrazan/boardly.git"
+    "url": "https://github.com/cdrrazan/Boardly.git"
   },
   "bugs": {
-    "url": "https://github.com/cdrrazan/boardly/issues"
+    "url": "https://github.com/cdrrazan/Boardly/issues"
   },
-  "homepage": "https://github.com/cdrrazan/boardly#readme",
+  "homepage": "https://github.com/cdrrazan/Boardly#readme",
   "engines": {
     "node": ">=20"
   },

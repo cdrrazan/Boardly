@@ -15,7 +15,7 @@ Boardly is pre-1.0 and released from the `v0` major tag. Security fixes are appl
 
 Instead, use one of these private channels:
 
-1. **GitHub Security Advisories** — preferred. Go to the repo's **Security → Advisories → Report a vulnerability** ([privately report here](https://github.com/cdrrazan/boardly/security/advisories/new)).
+1. **GitHub Security Advisories** — preferred. Go to the repo's **Security → Advisories → Report a vulnerability** ([privately report here](https://github.com/cdrrazan/Boardly/security/advisories/new)).
 2. **Email** — <cdrrazan@gmail.com> with the subject `SECURITY: Boardly`.
 
 Please include:
