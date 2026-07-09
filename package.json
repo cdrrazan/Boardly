@@ -1,0 +1,39 @@
+{
+  "name": "gh-project-autom8er",
+  "version": "0.1.0",
+  "description": "Config-driven GitHub Action that automates GitHub Projects (v2): sprint rollover, stale-card nudges, sub-issue Done-gating with parent roll-up, sprint digests, daily standups, and priority auto-sort.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "all": "npm run typecheck && npm run test && npm run build"
+  },
+  "keywords": [
+    "github-actions",
+    "github-projects",
+    "projects-v2",
+    "automation",
+    "sprint",
+    "kanban"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
+    "@octokit/graphql": "^8.2.2",
+    "js-yaml": "^4.1.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.15.3",
+    "@vercel/ncc": "^0.38.3",
+    "tsx": "^4.23.0",
+    "typescript": "^5.8.3"
+  }
+}
