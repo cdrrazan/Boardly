@@ -53,6 +53,15 @@ export async function runStaleNudge(ctx: RunContext): Promise<void> {
     if (!ctx.dryRun) {
       await client.comment(content.repoOwner, content.repoName, content.number, body);
     }
+
+    // Also broadcast the alert to any external channels (Slack/email).
+    await ctx.notifier.broadcast({
+      feature: "stale-nudge",
+      title: `Stale card: ${label}`,
+      markdown:
+        `⏳ [#${content.number}](${content.url}) **${content.title}** has been in ` +
+        `**${status}** for ${Math.floor(age)} day(s)${mentions ? ` — ${mentions}` : ""}.`,
+    });
   }
 }
 

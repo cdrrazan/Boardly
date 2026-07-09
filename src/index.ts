@@ -3,6 +3,7 @@ import * as github from "@actions/github";
 import { loadConfig } from "./config.js";
 import { ProjectClient } from "./github/client.js";
 import { Audit } from "./util/audit.js";
+import { buildNotifier } from "./notify/notifier.js";
 import type { RunContext } from "./features/context.js";
 import { runRollover } from "./features/rollover.js";
 import { runStaleNudge } from "./features/staleNudge.js";
@@ -65,11 +66,16 @@ async function run(): Promise<void> {
   core.info(`Loaded "${graph.title}" — ${graph.items.length} items, ${graph.fields.length} fields.`);
 
   const audit = new Audit(dryRun);
+  const notifier = buildNotifier(cfg, process.env, dryRun, audit);
+  if (notifier.channelCount > 0) {
+    core.info(`Notifications: ${notifier.channelCount} external channel(s) active.`);
+  }
   const ctx: RunContext = {
     cfg,
     client,
     graph,
     audit,
+    notifier,
     dryRun,
     now: new Date(),
     runRepo: { owner: github.context.repo.owner, repo: github.context.repo.repo },
