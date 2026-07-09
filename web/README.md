@@ -14,18 +14,32 @@ web/
 
 ## Deploy to Cloudflare Pages
 
-1. **Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git.**
-2. Pick the **`cdrrazan/Boardly`** repository.
-3. Configure the build:
+Pick **one** of the two options below — don't use both, or you'll get double deploys.
+
+### Option A — Auto-deploy via GitHub Actions (recommended)
+
+The [`deploy-web.yml`](../.github/workflows/deploy-web.yml) workflow uploads `web/` to Cloudflare Pages on every push to `web-app` (Direct Upload). One-time setup:
+
+1. **Create a Direct Upload Pages project** named `boardly`:
+   ```bash
+   npx wrangler pages project create boardly --production-branch web-app
+   ```
+2. **Add two repository secrets** (Settings → Secrets and variables → Actions):
+   - `CLOUDFLARE_API_TOKEN` — a token with the **Cloudflare Pages: Edit** permission
+   - `CLOUDFLARE_ACCOUNT_ID` — from the Cloudflare dashboard → Workers & Pages
+3. **Push to `web-app`** (or run the workflow manually). The Action publishes the site and prints the deployment URL in the job summary.
+
+### Option B — Cloudflare Git integration (no Action)
+
+1. **Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git**, pick **`cdrrazan/Boardly`**.
+2. Configure the build:
    - **Production branch:** `web-app`
-   - **Framework preset:** `None`
-   - **Build command:** _(leave empty)_
-   - **Build output directory:** `web`
-4. **Save and Deploy.** Cloudflare serves `web/index.html` at your `*.pages.dev` domain in seconds.
+   - **Framework preset:** `None` · **Build command:** _(empty)_ · **Build output directory:** `web`
+3. **Save and Deploy.** Cloudflare rebuilds on every push itself — in this case **delete** `deploy-web.yml` so the site isn't deployed twice.
 
-To use a custom domain, add it under the Pages project's **Custom domains** tab.
+Either way, add a custom domain under the Pages project's **Custom domains** tab.
 
-### Deploy from the CLI (optional)
+### Deploy once from the CLI (optional)
 
 ```bash
 npm i -g wrangler
