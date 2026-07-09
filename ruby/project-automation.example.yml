@@ -1,0 +1,81 @@
+# Example configuration for Boardly.
+# Copy to `.github/project-automation.yml` in your repo and adjust.
+
+project:
+  owner: my-org        # org or user login that owns the Project (v2)
+  type: org            # "org" or "user"
+  number: 5            # the Project number (from its URL: /orgs/my-org/projects/5)
+
+# Map your project's custom field NAMES. Defaults shown; override to match yours.
+fields:
+  status: Status       # single-select field used for the board columns
+  iteration: Sprint    # iteration field
+  priority: Priority   # single-select field for priority
+  estimate: Estimate   # number field (optional) — enables velocity in the digest
+  progress: Progress   # number field (optional) — sub-issue roll-up % is written here
+
+# Status option names that count as "complete".
+doneStatuses: ["Done", "Released"]
+
+features:
+  # Roll unfinished work from the just-ended iteration into the current one.
+  rollover:
+    enabled: true
+    onlyStatuses: []   # empty = every non-done item; or e.g. ["In Progress", "Todo"]
+
+  # Nudge owners when a card sits in a column too long.
+  staleNudge:
+    enabled: true
+    rules:
+      - status: "In Progress"
+        days: 3
+        notify: assignees      # or an explicit list: ["alice", "bob"]
+        message: "Heads up — this has been **In Progress** for {days} days. Any blockers?"
+      - status: "In Review"
+        days: 2
+        notify: assignees
+
+  # Block "Done" while sub-issues remain open, and roll completion % up.
+  subIssueGate:
+    enabled: true
+    guardStatuses: ["Done", "Released"]
+    action: comment            # "comment" (warn) or "revert" (move back)
+    revertStatus: "In Progress"  # required when action is "revert"
+
+  # Post a sprint digest when an iteration ends.
+  digest:
+    enabled: true
+    postTo:
+      issue: 42                # comment on this issue number...
+      # createIssueTitle: "Sprint digest"   # ...or open a new issue instead
+      # labels: ["report"]
+
+  # Daily standup of what moved.
+  standup:
+    enabled: true
+    sinceHours: 24
+    postTo:
+      createIssueTitle: "Daily standup"
+      labels: ["standup"]
+
+  # Keep the board ordered by priority (needs a manually-sorted board view).
+  prioritySort:
+    enabled: true
+    order: ["Urgent", "High", "Medium", "Low"]
+
+# Optional: also deliver digests, standups, and stale alerts to Slack / email.
+# Secrets are referenced by ENV VAR NAME — pass them via the workflow's `env:`
+# from encrypted secrets; never inline the values here.
+notifications:
+  slack:
+    enabled: true
+    webhookEnv: SLACK_WEBHOOK_URL     # env var holding a Slack Incoming Webhook URL
+  email:
+    enabled: false
+    host: smtp.example.com
+    port: 587
+    secure: false                     # true for port 465
+    userEnv: SMTP_USER                # env var with the SMTP username (optional)
+    passwordEnv: SMTP_PASS            # env var with the SMTP password (optional)
+    from: "Boardly <bot@example.com>"
+    to: ["team@example.com"]

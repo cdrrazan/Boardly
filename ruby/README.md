@@ -1,0 +1,92 @@
+# Boardly (Ruby edition) 🤖💎
+
+A **full-Ruby** port of [Boardly](https://github.com/cdrrazan/Boardly) — a config-driven GitHub Action that automates **GitHub Projects (v2)**: sprint rollover, stale-card nudges, sub-issue gating, digests, standups, priority sorting, and Slack/email notifications, all from one YAML file.
+
+Because GitHub Actions has no native Ruby runtime, this ships as a **Docker container action** (a `ruby:3.3` image). Behaviour and config are identical to the TypeScript version.
+
+> This folder is self-contained: copy its contents to the root of a new repository to publish it as its own action.
+
+## Features
+
+| Feature | What it does |
+|---------|--------------|
+| Sprint rollover | Move unfinished items into the next iteration when a sprint ends. |
+| Stale-card nudges | @-mention owners when a card sits in a status too long (de-duped). |
+| Sub-issue gating + roll-up | Block "Done" while sub-issues are open; write completion % to a field. |
+| Sprint digest | Completed vs carried-over + velocity at iteration end. |
+| Daily standup | What moved in the last N hours, grouped by assignee. |
+| Priority auto-sort | Reorder the board by a configured priority order. |
+| Slack & email | Deliver digests/standups/alerts to Slack and inboxes. |
+| Audit trail | Every action written to the job summary; `dry-run` mode. |
+
+## Usage
+
+```yaml
+# .github/workflows/boardly.yml
+on:
+  schedule: [{ cron: "0 8 * * 1-5" }]
+permissions:
+  contents: read
+  issues: write
+jobs:
+  automate:
+    runs-on: ubuntu-latest   # Docker actions require a Linux runner
+    steps:
+      - uses: your-org/boardly-rb@v1
+        with:
+          token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+          config-path: .github/project-automation.yml
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+```
+
+Config lives in `.github/project-automation.yml` — see [`project-automation.example.yml`](./project-automation.example.yml). It is byte-for-byte compatible with the TypeScript edition.
+
+### Inputs
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `token` | — _(required)_ | Token with `project` + `issues` access. |
+| `config-path` | `.github/project-automation.yml` | Path to the config file. |
+| `only` | `""` | Run one feature: `rollover`, `stale-nudge`, `sub-issue-gate`, `digest`, `standup`, `priority-sort`. |
+| `dry-run` | `false` | Log intended actions without making changes. |
+
+**Output:** `actions-count`.
+
+## Architecture
+
+```
+lib/
+  boardly.rb              # entry point: inputs → config → fetch → dispatch → audit
+  boardly/
+    config.rb             # YAML load + validation (defaults match the TS zod schema)
+    model.rb              # normalized structs (ProjectGraph, ProjectItem, …)
+    github/               # GraphQL queries, Net::HTTP client, normalization
+    features/             # one module per feature
+    notify/               # Slack + email channels + Notifier
+    util/                 # dates + field accessors
+    audit.rb              # job-summary audit trail
+bin/boardly               # container entrypoint
+test/                     # Minitest specs + fake client/channel (27 tests)
+```
+
+**Stack:** Ruby 3.3, standard library for HTTP/JSON/YAML, `mail` gem for SMTP, Minitest for tests. No web framework, minimal dependencies.
+
+## Development
+
+```bash
+cd ruby
+bundle install
+bundle exec rake test          # or: ruby -Ilib -Itest test/features_test.rb
+docker build -t boardly-rb .   # build the action image
+```
+
+## Notes vs. the TypeScript edition
+
+- **Runtime:** Docker container action (Linux runners only) instead of a bundled `node20` action. Slightly slower cold start; no `dist/` to commit.
+- **HTTP:** `Net::HTTP` (stdlib) for both GraphQL and REST — no Octokit dependency.
+- **Config validation:** hand-written to mirror the zod schema (same field names, same defaults, same error style).
+
+## License
+
+[MIT](./LICENSE).
