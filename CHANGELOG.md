@@ -7,14 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Continuous integration (typecheck + tests + build + `dist/` sync check) on every push and PR.
-- Issue forms (bug report, feature request) and a pull-request template.
-- This changelog.
-
-### Changed
-- Extracted GraphQL→domain normalization into `src/github/normalize.ts` (no behavior change).
-- Expanded the test suite from 14 to 40 tests.
+_Nothing yet._
 
 ## [0.1.0] — 2026-07-09
 
@@ -30,6 +23,11 @@ Initial release: a config-driven GitHub Action for Projects (v2).
 - **Audit trail** — every action written to the Actions job summary, plus a `dry-run` mode.
 - YAML configuration with schema validation, an example config, and a consumer workflow.
 - Documentation: README, 12 use-case recipes, architecture, contributing, security, code of conduct, and roadmap.
+
+### Tooling
+- Continuous integration (typecheck + tests + build + `dist/` sync check) on every push and PR.
+- Issue forms (bug report, feature request) and a pull-request template.
+- Test suite of 40 unit tests covering feature logic, normalization, config, and util helpers.
 
 [Unreleased]: https://github.com/cdrrazan/Boardly/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/cdrrazan/Boardly/releases/tag/v0.1.0
