@@ -61,7 +61,12 @@ Every pull request runs the **PR checks** workflow ([`.github/workflows/pr-check
 - **No merge conflicts** — the PR is test-merged against the base branch.
 - **PR ready to merge** — an aggregate gate that passes only when both of the above pass.
 
-> **Maintainers:** mark **`PR ready to merge`** as a required status check in the branch-protection rule for `main` (Settings → Branches). That single check enforces tests, build, `dist/` sync, and conflict-free merges. Pushes to `main` are separately validated by the [`CI`](./.github/workflows/ci.yml) workflow.
+A separate, fast **PR lint** workflow ([`pr-lint.yml`](./.github/workflows/pr-lint.yml)) also checks:
+
+- **PR title** must follow [Conventional Commits](https://www.conventionalcommits.org/) — e.g. `feat: add X`, `fix(config): handle Y` (blocking).
+- **Labels** — advisory reminder to add at least one label for triage (not blocking, since external contributors can't self-label).
+
+> **Maintainers:** in the branch-protection rule for `main` (Settings → Branches), mark **`PR ready to merge`** as a required status check (it enforces tests, build, `dist/` sync, and conflict-free merges), and optionally **`Lint PR title & labels`** to enforce the title convention. Pushes to `main` are separately validated by the [`CI`](./.github/workflows/ci.yml) workflow.
 
 ## Adding a new feature
 

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Slack & email notifications** — optionally deliver digests, standups, and stale alerts to a Slack Incoming Webhook and/or over SMTP email, in addition to GitHub comments. Configured under a new `notifications` block; secrets are referenced by environment-variable name. See the [notifications recipe](./docs/use-cases/13-notifications.md).
 - **PR checks workflow** — gates every pull request on tests, build, `dist/` sync, and no merge conflicts, via a single aggregate "PR ready to merge" status check.
+- **PR lint workflow** — enforces Conventional Commit PR titles (blocking) and nudges for a triage label (advisory).
 
 ## [0.1.0] — 2026-07-09
 
