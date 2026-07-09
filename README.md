@@ -52,6 +52,7 @@ flowchart LR
 | 🏁 | **Sprint digest** | At iteration end, post completed-vs-carried-over counts and velocity. |
 | 🗓️ | **Daily standup** | Post what moved in the last _N_ hours, grouped by assignee. |
 | 🔼 | **Priority auto-sort** | Reorder the board so higher-priority cards float to the top. |
+| 📣 | **Slack & email notifications** | Also deliver digests, standups, and stale alerts to a Slack channel and/or over email — not just GitHub comments. |
 | 📋 | **Audit trail** | Every action (or, in `dry-run`, every _intended_ action) is written to the job summary. |
 
 ## 📚 Use cases
@@ -72,6 +73,7 @@ Every feature comes with a standalone, copy-pasteable recipe — **who it's for*
 | 10 | [Different schedules per feature](./docs/use-cases/10-per-feature-schedules.md) | ⚙️ All |
 | 11 | [Solo maintainer / personal project board](./docs/use-cases/11-personal-project.md) | ⚙️ All |
 | 12 | [Escalate cards ignored after a nudge](./docs/use-cases/12-escalation-with-revert.md) | 🔔 Stale + 🧩 gate |
+| 13 | [Send digests & alerts to Slack and email](./docs/use-cases/13-notifications.md) | 📣 Notifications |
 
 > New here? Start with [01 · Sprint rollover](./docs/use-cases/01-sprint-rollover.md) and [08 · Dry-run preview](./docs/use-cases/08-dry-run-preview.md).
 
@@ -135,6 +137,40 @@ features:
 ```
 
 Full reference: [`project-automation.example.yml`](./project-automation.example.yml).
+
+## 📣 Notifications (Slack & email)
+
+By default, digests, standups, and stale alerts are posted to GitHub. You can **also** deliver them to a Slack channel and/or over email by adding a `notifications` block. Secrets are referenced by **environment-variable name** — never inline the webhook URL or SMTP password in config; pass them from encrypted secrets via the workflow's `env:`.
+
+```yaml
+# in project-automation.yml
+notifications:
+  slack:
+    enabled: true
+    webhookEnv: SLACK_WEBHOOK_URL      # env var with a Slack Incoming Webhook URL
+  email:
+    enabled: true
+    host: smtp.example.com
+    port: 587
+    secure: false                      # true for port 465
+    userEnv: SMTP_USER
+    passwordEnv: SMTP_PASS
+    from: "Boardly <bot@example.com>"
+    to: ["team@example.com"]
+```
+
+```yaml
+# in your workflow — map the secrets into the environment
+- uses: cdrrazan/Boardly@v0
+  with:
+    token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    SMTP_USER: ${{ secrets.SMTP_USER }}
+    SMTP_PASS: ${{ secrets.SMTP_PASS }}
+```
+
+Both channels are optional and independent — enable either, both, or neither. A channel failure is logged as a warning and never aborts the run, and nothing is sent under `dry-run`. See the [notifications recipe](./docs/use-cases/13-notifications.md).
 
 ## 🧠 How it decides things
 

@@ -36,3 +36,8 @@ jobs:
           config-path: .github/project-automation.yml
           only: ${{ github.event.inputs.only }}
           dry-run: ${{ github.event.inputs.dry-run || 'false' }}
+        # Optional: only needed if you enable Slack/email notifications.
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
