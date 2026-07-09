@@ -4,7 +4,7 @@ import type { ProjectItem } from "../types.js";
 import { priorityOf, requireField } from "../util/project.js";
 
 /**
- * Feature 12 — Priority auto-sort.
+ * Priority auto-sort.
  *
  * Reorders the project's items so higher-priority cards float to the top,
  * following the configured priority order. Items without a recognised priority

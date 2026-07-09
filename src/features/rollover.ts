@@ -3,7 +3,7 @@ import type { RunContext } from "./context.js";
 import { iterationOf, isDone, requireField, statusOf } from "../util/project.js";
 
 /**
- * Feature 1 — Sprint rollover.
+ * Sprint rollover.
  *
  * When an iteration ends, move every item that is still in that iteration and
  * not "done" into the next (current) iteration, so unfinished work carries over

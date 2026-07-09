@@ -18,12 +18,12 @@ fields:
 doneStatuses: ["Done", "Released"]
 
 features:
-  # 1) Roll unfinished work from the just-ended iteration into the current one.
+  # Roll unfinished work from the just-ended iteration into the current one.
   rollover:
     enabled: true
     onlyStatuses: []   # empty = every non-done item; or e.g. ["In Progress", "Todo"]
 
-  # 2) Nudge owners when a card sits in a column too long.
+  # Nudge owners when a card sits in a column too long.
   staleNudge:
     enabled: true
     rules:
@@ -35,14 +35,14 @@ features:
         days: 2
         notify: assignees
 
-  # 7) Block "Done" while sub-issues remain open, and roll completion % up.
+  # Block "Done" while sub-issues remain open, and roll completion % up.
   subIssueGate:
     enabled: true
     guardStatuses: ["Done", "Released"]
     action: comment            # "comment" (warn) or "revert" (move back)
     revertStatus: "In Progress"  # required when action is "revert"
 
-  # 8) Post a sprint digest when an iteration ends.
+  # Post a sprint digest when an iteration ends.
   digest:
     enabled: true
     postTo:
@@ -50,7 +50,7 @@ features:
       # createIssueTitle: "Sprint digest"   # ...or open a new issue instead
       # labels: ["report"]
 
-  # 9) Daily standup of what moved.
+  # Daily standup of what moved.
   standup:
     enabled: true
     sinceHours: 24
@@ -58,7 +58,7 @@ features:
       createIssueTitle: "Daily standup"
       labels: ["standup"]
 
-  # 12) Keep the board ordered by priority (needs a manually-sorted board view).
+  # Keep the board ordered by priority (needs a manually-sorted board view).
   prioritySort:
     enabled: true
     order: ["Urgent", "High", "Medium", "Low"]

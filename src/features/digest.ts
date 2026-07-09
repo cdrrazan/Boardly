@@ -5,7 +5,7 @@ import { estimateOf, isDone, iterationOf, requireField } from "../util/project.j
 import { postReport } from "./post.js";
 
 /**
- * Feature 8 — Sprint digest.
+ * Sprint digest.
  *
  * Summarizes the most recently completed iteration: how many items were
  * completed vs carried over, and velocity (sum of estimates completed, when an

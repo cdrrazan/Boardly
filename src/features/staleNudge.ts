@@ -6,7 +6,7 @@ import { daysBetween } from "../util/dates.js";
 const marker = (status: string) => `<!-- boardly:stale-nudge:${status.toLowerCase()} -->`;
 
 /**
- * Feature 2 — Stale-card nudges.
+ * Stale-card nudges.
  *
  * For each configured rule, find cards that have sat in a status longer than
  * `days` and @-mention the owners with a nudge comment. A hidden marker in the
