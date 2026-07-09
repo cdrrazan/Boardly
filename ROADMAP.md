@@ -38,7 +38,8 @@ Helping teams plan, not just tidy.
 
 Ideas we like but haven't committed to. Feedback especially welcome here.
 
-- 💡 **More notification channels** — Slack / Discord / email delivery for nudges and digests.
+- ✅ **Slack & email notifications** — delivered for digests, standups, and stale alerts. _(shipped)_
+- 💡 **More notification channels** — Discord and Microsoft Teams delivery.
 - 💡 **Lifecycle status sync** — auto-move cards as issues/PRs open, get reviewed, merge, or close.
 - 💡 **Auto-add + auto-triage** — add new issues/PRs to the project and set fields from label rules (round-robin assignment).
 - 💡 **WIP limits** — warn when a column exceeds N cards.

@@ -16,5 +16,6 @@ Real-world scenarios for Boardly, each as a standalone recipe you can copy. Ever
 | 10 | [Different schedules per feature](./10-per-feature-schedules.md) | All |
 | 11 | [Solo maintainer / personal project board](./11-personal-project.md) | All |
 | 12 | [Escalate cards ignored after a nudge](./12-escalation-with-revert.md) | Stale + gate |
+| 13 | [Send digests & alerts to Slack and email](./13-notifications.md) | Notifications |
 
 > New to the tool? Start with [01](./01-sprint-rollover.md) and [08](./08-dry-run-preview.md).
