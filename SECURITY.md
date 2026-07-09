@@ -2,12 +2,12 @@
 
 ## Supported versions
 
-Boardly is pre-1.0 and released from the `v0` major tag. Security fixes are applied to the latest `v0.x` release. Pin to a tag (e.g. `@v0`) rather than a floating branch.
+Boardly is released from the `v1` major tag. Security fixes are applied to the latest `v1.x` release. Pin to a tag (e.g. `@v1`) rather than a floating branch.
 
 | Version | Supported |
 |---------|-----------|
-| `v0.x` (latest) | ✅ |
-| older `v0.x` | ⚠️ upgrade recommended |
+| `v1.x` (latest) | ✅ |
+| older `v1.x` | ⚠️ upgrade recommended |
 
 ## Reporting a vulnerability
 
