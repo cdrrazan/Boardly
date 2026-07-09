@@ -4,9 +4,9 @@ This is a living document — priorities shift based on community feedback. Have
 
 Legend: ✅ shipped · 🛠️ in progress · 🔭 planned · 💡 idea / needs discussion
 
-## ✅ v0.1 — Foundation (shipped)
+## ✅ v1.0 — Foundation (shipped)
 
-The initial release: a config-driven Action with six features and an audit trail.
+The first stable release: a config-driven Action with the core feature set plus notifications.
 
 - ✅ Sprint rollover
 - ✅ Stale-card nudges (with de-dup)
@@ -14,9 +14,10 @@ The initial release: a config-driven Action with six features and an audit trail
 - ✅ Sprint digest (completed / carried-over / velocity)
 - ✅ Daily standup summary
 - ✅ Priority auto-sort
+- ✅ Slack & email notifications
 - ✅ Audit trail → job summary + `dry-run`
 
-## 🔭 v0.2 — Correctness & trust
+## 🔭 v1.1 — Correctness & trust
 
 Making the existing features smarter and safer to adopt.
 
@@ -25,7 +26,7 @@ Making the existing features smarter and safer to adopt.
 - 🔭 **Iteration auto-assignment** — drop newly-added items into the current active iteration automatically.
 - 🔭 **Richer templating** — more placeholders and per-rule formatting for nudge/digest/standup messages.
 
-## 🔭 v0.3 — Planning signals
+## 🔭 v1.2 — Planning signals
 
 Helping teams plan, not just tidy.
 
@@ -51,14 +52,14 @@ Ideas we like but haven't committed to. Feedback especially welcome here.
 
 Not user-facing, but on the list.
 
-- 🔭 CI workflow (typecheck + test + verify `dist/` is in sync on every PR).
+- ✅ CI + PR-checks + PR-lint workflows (typecheck, test, build, `dist/` sync, no merge conflicts, title lint).
+- ✅ Published changelog + release automation (the `v1` alias auto-moves on publish).
 - 🔭 Integration smoke test against a sandbox project in `dry-run`.
-- 💡 Published changelog + release automation.
-- 💡 Marketplace listing once `v1` stabilizes.
+- 💡 GitHub Marketplace listing.
 
-## Toward v1.0
+## Beyond v1.0
 
-`v1.0` ships when the v0.2 correctness work lands, the API surface (config schema + inputs) is stable enough to promise backward compatibility, and we have CI + an integration smoke test guarding releases.
+`v1.0` is out. Within the `v1.x` line the config schema and action inputs stay backward-compatible; any breaking change to them waits for a `v2`. Priorities are driven by real usage — feedback in [issues](https://github.com/cdrrazan/Boardly/issues) and [discussions](https://github.com/cdrrazan/Boardly/discussions) shapes what lands next.
 
 ---
 

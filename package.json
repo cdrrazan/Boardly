@@ -1,6 +1,6 @@
 {
   "name": "boardly",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Config-driven GitHub Action that automates GitHub Projects (v2): sprint rollover, stale-card nudges, sub-issue Done-gating with parent roll-up, sprint digests, daily standups, and priority auto-sort.",
   "main": "dist/index.js",
   "type": "module",
