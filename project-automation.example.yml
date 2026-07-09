@@ -62,3 +62,20 @@ features:
   prioritySort:
     enabled: true
     order: ["Urgent", "High", "Medium", "Low"]
+
+# Optional: also deliver digests, standups, and stale alerts to Slack / email.
+# Secrets are referenced by ENV VAR NAME — pass them via the workflow's `env:`
+# from encrypted secrets; never inline the values here.
+notifications:
+  slack:
+    enabled: true
+    webhookEnv: SLACK_WEBHOOK_URL     # env var holding a Slack Incoming Webhook URL
+  email:
+    enabled: false
+    host: smtp.example.com
+    port: 587
+    secure: false                     # true for port 465
+    userEnv: SMTP_USER                # env var with the SMTP username (optional)
+    passwordEnv: SMTP_PASS            # env var with the SMTP password (optional)
+    from: "Boardly <bot@example.com>"
+    to: ["team@example.com"]

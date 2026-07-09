@@ -83,6 +83,27 @@ export const configSchema = z.object({
       order: z.array(z.string().min(1)).min(1),
     }).optional(),
   }),
+
+  // Optional external delivery for digests, standups, and stale alerts.
+  // Secrets are referenced by env-var NAME, never inlined here.
+  notifications: z.object({
+    slack: z.object({
+      enabled: z.boolean().default(false),
+      // Env var holding the Slack Incoming Webhook URL.
+      webhookEnv: z.string().default("SLACK_WEBHOOK_URL"),
+    }).optional(),
+    email: z.object({
+      enabled: z.boolean().default(false),
+      host: z.string().min(1),
+      port: z.number().int().positive().default(587),
+      secure: z.boolean().default(false),
+      // Env vars holding SMTP credentials (omit for an unauthenticated relay).
+      userEnv: z.string().optional(),
+      passwordEnv: z.string().optional(),
+      from: z.string().min(1),
+      to: z.array(z.string().min(1)).min(1),
+    }).optional(),
+  }).optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;

@@ -10,7 +10,10 @@ export interface PostTarget {
   labels: string[];
 }
 
-/** Post a report body either as a comment on a fixed issue or as a fresh issue. */
+/**
+ * Post a report to GitHub (a comment on a fixed issue or a fresh issue) and then
+ * broadcast it to any configured external channels (Slack/email).
+ */
 export async function postReport(
   ctx: RunContext,
   target: PostTarget,
@@ -25,12 +28,13 @@ export async function postReport(
     if (!ctx.dryRun) {
       await client.comment(runRepo.owner, runRepo.repo, target.issue, body);
     }
-    return;
+  } else {
+    const title = target.createIssueTitle ?? fallbackTitle;
+    audit.record(feature, "create-issue", `${runRepo.owner}/${runRepo.repo}`, title);
+    if (!ctx.dryRun) {
+      await client.createIssue(runRepo.owner, runRepo.repo, title, body, target.labels);
+    }
   }
 
-  const title = target.createIssueTitle ?? fallbackTitle;
-  audit.record(feature, "create-issue", `${runRepo.owner}/${runRepo.repo}`, title);
-  if (!ctx.dryRun) {
-    await client.createIssue(runRepo.owner, runRepo.repo, title, body, target.labels);
-  }
+  await ctx.notifier.broadcast({ feature, title: fallbackTitle, markdown: body });
 }

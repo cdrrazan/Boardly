@@ -3,6 +3,8 @@ import type { ProjectClient } from "../src/github/client.js";
 import type { RunContext } from "../src/features/context.js";
 import type { FieldValue, ProjectField, ProjectGraph, ProjectItem } from "../src/types.js";
 import { Audit } from "../src/util/audit.js";
+import { Notifier } from "../src/notify/notifier.js";
+import type { NotifyChannel, Report } from "../src/notify/types.js";
 
 export const NOW = new Date("2026-07-09T00:00:00Z");
 
@@ -119,6 +121,35 @@ export function makeGraph(fields: ProjectField[], items: ProjectItem[]): Project
   return { id: "PVT_1", title: "Test Board", fields, items };
 }
 
-export function makeCtx(graph: ProjectGraph, cfg: Config, client: FakeClient, dryRun = false): RunContext {
-  return { cfg, client: client.asClient(), graph, audit: new Audit(dryRun), dryRun, now: NOW, runRepo: { owner: "acme", repo: "repo" } };
+/** Records every broadcast so tests can assert on external notifications. */
+export class FakeChannel implements NotifyChannel {
+  readonly name: string;
+  readonly target = "fake";
+  sent: Report[] = [];
+  constructor(name = "fake") {
+    this.name = name;
+  }
+  async send(report: Report) {
+    this.sent.push(report);
+  }
+}
+
+export function makeCtx(
+  graph: ProjectGraph,
+  cfg: Config,
+  client: FakeClient,
+  dryRun = false,
+  channels: FakeChannel[] = [],
+): RunContext {
+  const audit = new Audit(dryRun);
+  return {
+    cfg,
+    client: client.asClient(),
+    graph,
+    audit,
+    notifier: new Notifier(channels, dryRun, audit),
+    dryRun,
+    now: NOW,
+    runRepo: { owner: "acme", repo: "repo" },
+  };
 }
