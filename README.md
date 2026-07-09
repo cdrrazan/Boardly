@@ -8,11 +8,12 @@ A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint
 
 <br/>
 
+[![CI](https://github.com/cdrrazan/Boardly/actions/workflows/ci.yml/badge.svg)](https://github.com/cdrrazan/Boardly/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Made with TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![GitHub Projects v2](https://img.shields.io/badge/GitHub-Projects%20v2-181717?logo=github&logoColor=white)](https://docs.github.com/issues/planning-and-tracking-with-projects)
-[![Tests](https://img.shields.io/badge/tests-14%20passing-brightgreen.svg)](./test)
+[![Tests](https://img.shields.io/badge/tests-40%20passing-brightgreen.svg)](./test)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](./CONTRIBUTING.md)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](./OPEN_SOURCE.md)
 
