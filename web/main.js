@@ -7,18 +7,6 @@
   // stays visible if JS is disabled or fails to load).
   root.classList.add("js");
 
-  /* ---- Theme (persisted, defaults to OS preference) ---- */
-  const stored = localStorage.getItem("boardly-theme");
-  if (stored) root.setAttribute("data-theme", stored);
-  else if (window.matchMedia("(prefers-color-scheme: light)").matches) root.setAttribute("data-theme", "light");
-
-  const themeBtn = document.getElementById("theme-toggle");
-  themeBtn?.addEventListener("click", () => {
-    const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
-    root.setAttribute("data-theme", next);
-    localStorage.setItem("boardly-theme", next);
-  });
-
   /* ---- Mobile menu ---- */
   const nav = document.querySelector(".nav");
   const burger = document.getElementById("burger");
