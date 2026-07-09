@@ -1,4 +1,4 @@
-# Contributing to gh-project-autom8er
+# Contributing to Boardly
 
 First off — thank you! 🎉 This project is open source and community-driven, and contributions of every size are welcome: bug reports, docs fixes, new use-cases, and features.
 
@@ -14,8 +14,8 @@ By participating you agree to abide by our [Code of Conduct](./CODE_OF_CONDUCT.m
 ## Development setup
 
 ```bash
-git clone https://github.com/cdrrazan/gh-project-autom8er.git
-cd gh-project-autom8er
+git clone https://github.com/cdrrazan/boardly.git
+cd boardly
 npm install
 ```
 

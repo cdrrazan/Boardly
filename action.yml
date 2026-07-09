@@ -1,4 +1,4 @@
-name: "GitHub Project Autom8er"
+name: "Boardly"
 description: "Config-driven automation for GitHub Projects (v2): sprint rollover, stale nudges, sub-issue gating, digests, standups, and priority auto-sort."
 author: "cdrrazan"
 branding:

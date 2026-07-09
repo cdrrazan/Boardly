@@ -1,4 +1,4 @@
-# Example configuration for gh-project-autom8er.
+# Example configuration for Boardly.
 # Copy to `.github/project-automation.yml` in your repo and adjust.
 
 project:

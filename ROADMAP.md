@@ -1,6 +1,6 @@
 # 🗺️ Roadmap
 
-This is a living document — priorities shift based on community feedback. Have an idea or a vote? Open an [issue](https://github.com/cdrrazan/gh-project-autom8er/issues) or a [discussion](https://github.com/cdrrazan/gh-project-autom8er/discussions).
+This is a living document — priorities shift based on community feedback. Have an idea or a vote? Open an [issue](https://github.com/cdrrazan/boardly/issues) or a [discussion](https://github.com/cdrrazan/boardly/discussions).
 
 Legend: ✅ shipped · 🛠️ in progress · 🔭 planned · 💡 idea / needs discussion
 

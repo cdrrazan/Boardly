@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤖 gh-project-autom8er
+# 🤖 Boardly
 
 ### Put your GitHub Projects board on autopilot.
 
@@ -28,7 +28,7 @@ You point the action at a Project (v2), describe your rules in `.github/project-
 
 ```mermaid
 flowchart LR
-    cron([⏰ Schedule / manual]) --> action[🤖 gh-project-autom8er]
+    cron([⏰ Schedule / manual]) --> action[🤖 Boardly]
     cfg[[📄 project-automation.yml]] --> action
     action -->|GraphQL| gh[(🗂️ GitHub Project v2)]
     gh --> action
@@ -71,7 +71,7 @@ flowchart TD
 3. **Add a workflow** — see [`.github/workflows/example.yml`](./.github/workflows/example.yml):
 
    ```yaml
-   - uses: cdrrazan/gh-project-autom8er@v0
+   - uses: cdrrazan/boardly@v0
      with:
        token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
        config-path: .github/project-automation.yml
@@ -145,7 +145,7 @@ Contributions are very welcome! Read the [**Contributing Guide**](./CONTRIBUTING
 
 ## ❤️ Support the project
 
-`gh-project-autom8er` is free and open source. If it saves your team time, please consider sponsoring — it directly funds maintenance and new features.
+Boardly is free and open source. If it saves your team time, please consider sponsoring — it directly funds maintenance and new features.
 
 <div align="center">
 

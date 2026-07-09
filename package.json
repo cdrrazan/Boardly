@@ -1,5 +1,5 @@
 {
-  "name": "gh-project-autom8er",
+  "name": "boardly",
   "version": "0.1.0",
   "description": "Config-driven GitHub Action that automates GitHub Projects (v2): sprint rollover, stale-card nudges, sub-issue Done-gating with parent roll-up, sprint digests, daily standups, and priority auto-sort.",
   "main": "dist/index.js",
@@ -22,12 +22,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cdrrazan/gh-project-autom8er.git"
+    "url": "https://github.com/cdrrazan/boardly.git"
   },
   "bugs": {
-    "url": "https://github.com/cdrrazan/gh-project-autom8er/issues"
+    "url": "https://github.com/cdrrazan/boardly/issues"
   },
-  "homepage": "https://github.com/cdrrazan/gh-project-autom8er#readme",
+  "homepage": "https://github.com/cdrrazan/boardly#readme",
   "engines": {
     "node": ">=20"
   },

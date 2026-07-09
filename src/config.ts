@@ -3,7 +3,7 @@ import { load as parseYaml } from "js-yaml";
 import { z } from "zod";
 
 /**
- * Config schema for gh-project-autom8er. The config file lives in the adopter's
+ * Config schema for Boardly. The config file lives in the adopter's
  * repository (default `.github/project-automation.yml`) and declares which
  * project to operate on, how the project's custom fields are named, and which
  * features are enabled with their parameters.

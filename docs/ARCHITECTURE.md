@@ -1,6 +1,6 @@
 # Architecture
 
-A tour of how `gh-project-autom8er` is put together, for contributors.
+A tour of how Boardly is put together, for contributors.
 
 ## High-level flow
 

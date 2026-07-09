@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-`gh-project-autom8er` is pre-1.0 and released from the `v0` major tag. Security fixes are applied to the latest `v0.x` release. Pin to a tag (e.g. `@v0`) rather than a floating branch.
+Boardly is pre-1.0 and released from the `v0` major tag. Security fixes are applied to the latest `v0.x` release. Pin to a tag (e.g. `@v0`) rather than a floating branch.
 
 | Version | Supported |
 |---------|-----------|
@@ -15,8 +15,8 @@
 
 Instead, use one of these private channels:
 
-1. **GitHub Security Advisories** — preferred. Go to the repo's **Security → Advisories → Report a vulnerability** ([privately report here](https://github.com/cdrrazan/gh-project-autom8er/security/advisories/new)).
-2. **Email** — <cdrrazan@gmail.com> with the subject `SECURITY: gh-project-autom8er`.
+1. **GitHub Security Advisories** — preferred. Go to the repo's **Security → Advisories → Report a vulnerability** ([privately report here](https://github.com/cdrrazan/boardly/security/advisories/new)).
+2. **Email** — <cdrrazan@gmail.com> with the subject `SECURITY: Boardly`.
 
 Please include:
 
@@ -33,7 +33,7 @@ This project is a GitHub Action that operates on your Projects (v2) board using 
 - **Tokens.** The action needs a token with `project` and `issues` write access. **Store it as an encrypted secret** — never commit it or place it in the config file. The action reads it only from the `token` input.
 - **Least privilege.** Prefer a **fine-grained PAT** or a **GitHub App** installation token scoped to only the needed repos/projects over a classic PAT.
 - **Untrusted content.** The action reads issue/PR titles, assignees, and comment bodies. It treats them as data (for de-dup markers and message templates) and does not execute them. If you extend the templating, keep it inert.
-- **Comment markers.** De-dup markers are HTML comments (`<!-- gh-autom8er:... -->`) and carry no executable content.
+- **Comment markers.** De-dup markers are HTML comments (`<!-- boardly:... -->`) and carry no executable content.
 - **`dry-run`.** Use `dry-run: "true"` to audit exactly what the action would do before granting it write access on a production board.
 
 ## Good practices for adopters
