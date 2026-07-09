@@ -1,0 +1,70 @@
+# Contributing to gh-project-autom8er
+
+First off — thank you! 🎉 This project is open source and community-driven, and contributions of every size are welcome: bug reports, docs fixes, new use-cases, and features.
+
+By participating you agree to abide by our [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+## Ways to contribute
+
+- 🐛 **Report a bug** — open an issue with steps to reproduce, your config (redact tokens!), and what you expected.
+- 💡 **Suggest a feature** — check the [roadmap](./ROADMAP.md) first, then open an issue describing the workflow you're trying to automate.
+- 📝 **Improve docs** — READMEs, [use-cases](./docs/use-cases), and inline comments all count.
+- 🔧 **Send a PR** — see below.
+
+## Development setup
+
+```bash
+git clone https://github.com/cdrrazan/gh-project-autom8er.git
+cd gh-project-autom8er
+npm install
+```
+
+Requires **Node.js ≥ 20**.
+
+### Everyday commands
+
+| Command | What it does |
+|---------|--------------|
+| `npm run typecheck` | Type-check with `tsc --noEmit` |
+| `npm test` | Run the unit suite (`node:test` + `tsx`) |
+| `npm run build` | Bundle `src/` → `dist/index.js` with `ncc` |
+| `npm run all` | typecheck + test + build (run this before every PR) |
+
+## Project layout
+
+```
+src/
+  index.ts            # entrypoint: loads config, dispatches features
+  config.ts           # zod-validated YAML config schema + loader
+  types.ts            # normalized ProjectGraph / ProjectItem model
+  github/             # GraphQL documents + Octokit client wrapper
+  features/           # one file per feature (rollover, staleNudge, …)
+  util/               # audit trail, date math, field accessors
+test/                 # node:test specs + fake client helpers
+dist/                 # bundled action (committed — see below)
+```
+
+## Pull request checklist
+
+1. **Branch** from `main` (or the current default branch).
+2. **Add or update tests** in `test/` for any behavior change — the fake client in `test/helpers.ts` makes this easy without hitting the real API.
+3. **Run `npm run all`** — it must pass (typecheck, tests, build).
+4. **Commit the rebuilt `dist/`.** Because this is a JavaScript action, `dist/index.js` is committed and must stay in sync with `src/`. PRs that change `src/` without rebuilding `dist/` will fail review.
+5. **Keep commits focused** and write clear messages (we loosely follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
+6. **Update docs** — if you add a feature, add a [use-case](./docs/use-cases) and update the README feature table.
+
+## Adding a new feature
+
+1. Create `src/features/yourFeature.ts` exporting `async function runYourFeature(ctx: RunContext)`.
+2. Add its config shape to `configSchema` in `src/config.ts`.
+3. Register it in the `RUNNERS` map and `isEnabled()` in `src/index.ts`.
+4. Record every action via `ctx.audit.record(...)` and honor `ctx.dryRun` (never mutate when it's true).
+5. Add tests and a use-case page.
+
+## Reporting security issues
+
+Please **do not** open a public issue for vulnerabilities — follow [SECURITY.md](./SECURITY.md) instead.
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [MIT License](./LICENSE).
