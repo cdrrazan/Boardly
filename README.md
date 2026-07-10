@@ -252,6 +252,7 @@ Boardly is free and open source. If it saves your team time, please consider spo
 <div align="center">
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-GitHub-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/cdrrazan)
+[![Buy Me a Momo](https://img.shields.io/badge/Buy%20Me%20a%20Momo-FF7139?logo=buymeacoffee&logoColor=white)](https://buymemomo.com/rajan)
 
 ⭐ **Starring the repo also helps a lot.**
 
