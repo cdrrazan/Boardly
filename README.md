@@ -22,7 +22,7 @@ A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint
 
 **[🌐 boardly.app.rsynk.com](https://boardly.app.rsynk.com)** · 💎 **Prefer Ruby?** [cdrrazan/Boardly-ruby](https://github.com/cdrrazan/Boardly-ruby)
 
-[Quick start](#-quick-start) · [Features](#-features) · [Use cases](#-use-cases) · [Config](#%EF%B8%8F-configuration) · [Roadmap](./ROADMAP.md) · [Contributing](./CONTRIBUTING.md) · [Sponsor](#-support-the-project)
+[Getting started](./docs/GETTING_STARTED.md) · [Quick start](#-quick-start) · [Features](#-features) · [Use cases](#-use-cases) · [Config](#%EF%B8%8F-configuration) · [Roadmap](./ROADMAP.md) · [Contributing](./CONTRIBUTING.md) · [Sponsor](#-support-the-project)
 
 </div>
 
@@ -83,6 +83,8 @@ Every feature comes with a standalone, copy-pasteable recipe — **who it's for*
 > New here? Start with [01 · Sprint rollover](./docs/use-cases/01-sprint-rollover.md) and [08 · Dry-run preview](./docs/use-cases/08-dry-run-preview.md).
 
 ## ⚡ Quick start
+
+> **New here?** The [**Getting started guide**](./docs/GETTING_STARTED.md) is a full, linear zero-to-running walkthrough (~15 min). The steps below are the condensed version.
 
 ```mermaid
 flowchart TD
