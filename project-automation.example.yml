@@ -66,6 +66,8 @@ features:
 # Optional: also deliver digests, standups, and stale alerts to Slack / email.
 # Secrets are referenced by ENV VAR NAME — pass them via the workflow's `env:`
 # from encrypted secrets; never inline the values here.
+# To pause a channel without losing its config, set `enabled: false` — the
+# creds/settings stay put and nothing is sent until you flip it back to true.
 notifications:
   slack:
     enabled: true

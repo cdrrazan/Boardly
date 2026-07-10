@@ -192,6 +192,8 @@ notifications:
 
 Both channels are optional and independent — enable either, both, or neither. A channel failure is logged as a warning and never aborts the run, and nothing is sent under `dry-run`. See the [notifications recipe](./docs/use-cases/13-notifications.md).
 
+> **Configured but paused?** To keep your creds and settings in place but stop sending, just set that channel's `enabled: false`. The webhook/SMTP config stays untouched — no delivery happens until you flip it back to `true`. You don't need to remove secrets to go quiet.
+
 ## 🧠 How it decides things
 
 - **"Time in status"** is approximated by when the Status field value was last changed (Projects v2 exposes each field value's `updatedAt`). It is not a full status-history walk.
