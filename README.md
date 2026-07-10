@@ -8,7 +8,7 @@ A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint
 
 <br/>
 
-[![Website](https://img.shields.io/badge/Website-boardly.app.rsynk.com-6d8bff?logo=cloudflare&logoColor=white)](https://boardly.app.rsynk.com)
+[![Website](https://img.shields.io/badge/Website-boardly--gh.pages.dev-6d8bff?logo=cloudflare&logoColor=white)](https://boardly-gh.pages.dev)
 [![CI](https://github.com/cdrrazan/Boardly/actions/workflows/ci.yml/badge.svg)](https://github.com/cdrrazan/Boardly/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/cdrrazan/Boardly?sort=semver&color=success)](https://github.com/cdrrazan/Boardly/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
@@ -20,7 +20,7 @@ A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](./CONTRIBUTING.md)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](./OPEN_SOURCE.md)
 
-**[🌐 boardly.app.rsynk.com](https://boardly.app.rsynk.com)** · 💎 **Prefer Ruby?** [cdrrazan/Boardly-ruby](https://github.com/cdrrazan/Boardly-ruby)
+**[🌐 boardly-gh.pages.dev](https://boardly-gh.pages.dev)** · 💎 **Prefer Ruby?** [cdrrazan/Boardly-ruby](https://github.com/cdrrazan/Boardly-ruby)
 
 [Getting started](./docs/GETTING_STARTED.md) · [Quick start](#-quick-start) · [Features](#-features) · [Use cases](#-use-cases) · [Config](#%EF%B8%8F-configuration) · [Roadmap](./ROADMAP.md) · [Contributing](./CONTRIBUTING.md) · [Sponsor](#-support-the-project)
 
