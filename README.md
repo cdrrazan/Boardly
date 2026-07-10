@@ -105,6 +105,19 @@ flowchart TD
        dry-run: "true"   # preview first; remove once it looks right
    ```
 
+### 🔑 Secrets you'll need
+
+Set these as repository (or org) **Actions secrets**, then map them into the workflow. Only the token is required.
+
+| Secret | Required? | What it is | Needed when |
+|--------|-----------|------------|-------------|
+| `PROJECT_AUTOMATION_TOKEN` | **Yes** | Fine-grained PAT / GitHub App token — **Projects: read & write** + **Issues: read & write** | Always (the default `GITHUB_TOKEN` can't read org Projects) |
+| `SLACK_WEBHOOK_URL` | No | Slack Incoming Webhook URL | You enable `notifications.slack` |
+| `SMTP_USER` | No | SMTP username | You enable `notifications.email` with auth |
+| `SMTP_PASS` | No | SMTP password | You enable `notifications.email` with auth |
+
+The token is passed via the `token:` input; the notification secrets are passed via the workflow's `env:` (referenced in config **by env-var name**, never inlined). See [Notifications](#-notifications-slack--email).
+
 > **Versioning:** pin to **`@v1`** to always get the latest `v1.x` (bug-fixes and features, no breaking changes), or **`@v1.0.0`** to freeze an exact version.
 
 ## 🧾 Inputs & outputs
