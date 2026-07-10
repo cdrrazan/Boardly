@@ -120,6 +120,26 @@ The token is passed via the `token:` input; the notification secrets are passed 
 
 > **Versioning:** pin to **`@v1`** to always get the latest `v1.x` (bug-fixes and features, no breaking changes), or **`@v1.0.0`** to freeze an exact version.
 
+## 🏢 Using it in an organization
+
+Boardly is a **published Action** — there's nothing to install, fork, or host. Any repo in your org just references `cdrrazan/Boardly@v1`. To roll it out across a team:
+
+1. **Allowlist the Action** (only if your org restricts Actions). Org admin → **Settings → Actions → General → Allow select actions** → add `cdrrazan/Boardly@*`. Skip if your org already permits all or marketplace actions.
+2. **Create one token** with access to the org's Project (v2) — a **GitHub App token** (recommended for teams; not tied to a single person) or an **org-scoped fine-grained PAT**, with **Projects: read & write** + **Issues: read & write**.
+3. **Store it once as an org-level secret** named `PROJECT_AUTOMATION_TOKEN` (**Org Settings → Secrets and variables → Actions**) and share it to the repos that need it — one secret, many repos.
+4. **Host the workflow in a single repo.** A Project (v2) is owned by the **org or user**, not a repo, and the config targets it by `owner` + `number` — so the scheduled workflow lives in **one** repo, even when the board spans many. It does not need to be added to every repo.
+5. **Point the config at the org project** and dry-run first:
+
+   ```yaml
+   # .github/project-automation.yml
+   project:
+     owner: my-org     # your org login
+     type: org
+     number: 7         # from the project URL: /orgs/my-org/projects/7
+   ```
+
+For a board that pulls issues from several repositories, see the [multi-repo recipe](./docs/use-cases/09-multi-repo-project.md).
+
 ## 🧾 Inputs & outputs
 
 | Input | Default | Description |
