@@ -8,6 +8,65 @@ Boardly is a **GitHub Action** that automates a **GitHub Project (v2)** board. I
 
 ---
 
+## ⚡ Quick install — 5 steps in the GitHub UI
+
+No install, no fork, no gem — you add a token secret and two files, all from the GitHub web UI. The detailed walkthrough with explanations is below; this is the fast path.
+
+1. **Create a token.** [github.com/settings/tokens](https://github.com/settings/tokens?type=beta) → **Generate new token (fine-grained)**. Resource owner = the org/user that owns the Project. Permissions: **Projects → Read and write** + **Issues → Read and write**. Copy it.
+
+2. **Save it as a secret.** Repo → **Settings → Secrets and variables → Actions → New repository secret**. Name it `PROJECT_AUTOMATION_TOKEN`, paste the token.
+
+3. **Add the config.** Repo → **Add file → Create new file** → path `.github/project-automation.yml`:
+
+   ```yaml
+   project:
+     owner: my-org        # org or user login that owns the project
+     type: org            # "org" or "user"
+     number: 7            # project number from its URL
+   fields:
+     status: Status       # match your board's field names
+   doneStatuses: ["Done"]
+   features:
+     staleNudge:
+       enabled: true
+       rules:
+         - status: "In Progress"
+           days: 3
+           notify: assignees
+   ```
+
+   Commit.
+
+4. **Add the workflow.** **Add file → Create new file** → path `.github/workflows/project-automation.yml`:
+
+   ```yaml
+   name: Project automation      # display label in the Actions tab — rename freely
+   on:
+     workflow_dispatch:          # adds a manual "Run workflow" button
+     schedule:
+       - cron: "0 * * * *"       # hourly; adjust to taste
+   permissions:
+     contents: read
+     issues: write
+   jobs:
+     automate:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: cdrrazan/Boardly@v1   # this line is the Action — keep exact
+           with:
+             token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+             config-path: .github/project-automation.yml
+             dry-run: "true"     # preview only; no changes yet
+   ```
+
+   Commit.
+
+5. **Dry-run, then go live.** **Actions** tab → **Project automation** (the `name:` you set) → **Run workflow**. Open the run and read the **job summary** — it lists what Boardly *would* do. When it looks right, edit the workflow and set `dry-run: "false"` (or delete the line). Done — it now runs on schedule.
+
+> **Names:** `name:` is just a label (rename it freely — the Actions tab entry follows it). `uses: cdrrazan/Boardly@v1` is the Action itself and must be exact. The workflow *filename* is also your choice.
+
+---
+
 ## Step 0 · Confirm you have a Project (v2)
 
 1. Go to your org or profile → **Projects** tab → open (or create) the board that tracks this repo's issues.
