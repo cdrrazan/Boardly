@@ -52544,8 +52544,12 @@ const autoAssignRuleSchema = objectType({
 const staleRuleSchema = objectType({
     status: stringType().min(1),
     days: numberType().positive(),
-    // Who to @mention: "assignees" or an explicit list of logins.
-    notify: unionType([literalType("assignees"), arrayType(stringType().min(1))]).default("assignees"),
+    // Who to @mention. A bare token — "assignees" (the card's own assignees) or
+    // "reviewers" (pending review requests on the card's PR / linked PR) — or a
+    // list mixing those tokens with explicit logins, e.g. ["reviewers", "lead"].
+    // "reviewers" falls back to the assignees when no review is pending.
+    notify: unionType([literalType("assignees"), literalType("reviewers"), arrayType(stringType().min(1))])
+        .default("assignees"),
     message: stringType().optional(),
 });
 const configSchema = objectType({
@@ -52684,6 +52688,38 @@ function loadConfig(path) {
 function mapIteration(i) {
     return { id: i.id, title: i.title, startDate: i.startDate, duration: i.duration };
 }
+/** A single `requestedReviewer` union node → a mentionable handle, or null. */
+function reviewerHandle(r) {
+    if (!r)
+        return null;
+    if (r.__typename === "User")
+        return r.login ?? null;
+    if (r.__typename === "Team")
+        return r.slug ? `${r.organization?.login ?? ""}/${r.slug}`.replace(/^\//, "") : null;
+    return null;
+}
+/**
+ * Collect the *pending* requested reviewers for a content node: the PR's own
+ * `reviewRequests` when it's a PullRequest, or the linked (closing) PRs'
+ * requests when it's an Issue. Deduplicated; empty once all have reviewed.
+ */
+function extractReviewers(c) {
+    const out = [];
+    const collect = (rr) => {
+        for (const n of rr?.nodes ?? []) {
+            const handle = reviewerHandle(n.requestedReviewer);
+            if (handle)
+                out.push(handle);
+        }
+    };
+    if (c.__typename === "PullRequest")
+        collect(c.reviewRequests);
+    else if (c.__typename === "Issue") {
+        for (const pr of c.closedByPullRequestsReferences?.nodes ?? [])
+            collect(pr.reviewRequests);
+    }
+    return [...new Set(out)];
+}
 /**
  * Normalize the project's `fields.nodes` array.
  * Single-select fields keep their `options`; iteration fields expose their
@@ -52757,6 +52793,7 @@ function normalizeItem(node) {
             repoName: c.repository.name,
             assignees: (c.assignees?.nodes ?? []).map((a) => a.login),
             labels: (c.labels?.nodes ?? []).map((l) => l.name),
+            reviewers: extractReviewers(c),
             subIssues: c.subIssuesSummary
                 ? {
                     total: c.subIssuesSummary.total,
@@ -52772,6 +52809,12 @@ function normalizeItem(node) {
 
 ;// CONCATENATED MODULE: ./src/github/queries.ts
 /** GraphQL documents for reading and mutating Projects (v2). */
+/** A requested reviewer is either a User (login) or a Team (org/slug). */
+const REVIEWER_FIELDS = /* GraphQL */ `
+  __typename
+  ... on User { login }
+  ... on Team { slug organization { login } }
+`;
 const ITEM_FIELDS = /* GraphQL */ `
   id
   updatedAt
@@ -52822,6 +52865,11 @@ const ITEM_FIELDS = /* GraphQL */ `
       labels(first: 30) { nodes { name } }
       subIssuesSummary { total completed percentCompleted }
       parent { number title url }
+      closedByPullRequestsReferences(first: 5, includeClosedPrs: false) {
+        nodes {
+          reviewRequests(first: 20) { nodes { requestedReviewer { ${REVIEWER_FIELDS} } } }
+        }
+      }
     }
     ... on PullRequest {
       id
@@ -52835,6 +52883,7 @@ const ITEM_FIELDS = /* GraphQL */ `
       repository { owner { login } name }
       assignees(first: 20) { nodes { login } }
       labels(first: 30) { nodes { name } }
+      reviewRequests(first: 20) { nodes { requestedReviewer { ${REVIEWER_FIELDS} } } }
     }
   }
 `;
@@ -53545,7 +53594,7 @@ async function runStaleNudge(ctx) {
         const alreadyNudged = existing.some((c) => c.body.includes(marker(status)) && new Date(c.createdAt) >= new Date(since));
         if (alreadyNudged)
             continue;
-        const mentions = resolveMentions(rule.notify, content.assignees);
+        const mentions = resolveMentions(rule.notify, content.assignees, content.reviewers);
         const template = rule.message ?? "This item has been in **{status}** for {days} day(s) with no status change. Any update?";
         const body = `${marker(status)}\n${fill(template, { status, days: Math.floor(age), number: content.number, title: content.title })}` +
             (mentions ? `\n\n${mentions}` : "");
@@ -53563,9 +53612,23 @@ async function runStaleNudge(ctx) {
         });
     }
 }
-function resolveMentions(notify, assignees) {
-    const logins = notify === "assignees" ? assignees : notify;
-    return logins.map((l) => `@${l.replace(/^@/, "")}`).join(" ");
+/**
+ * Turn a rule's `notify` into an @-mention string. The tokens "assignees" and
+ * "reviewers" expand to the card's own people — whether given bare or mixed
+ * into a list alongside literal logins. "reviewers" falls back to the assignees
+ * when no review is pending, so a stuck card never nudges nobody. Deduplicated.
+ */
+function resolveMentions(notify, assignees, reviewers) {
+    const expand = (token) => {
+        if (token === "assignees")
+            return assignees;
+        if (token === "reviewers")
+            return reviewers.length > 0 ? reviewers : assignees;
+        return [token];
+    };
+    const tokens = Array.isArray(notify) ? notify : [notify];
+    const logins = [...new Set(tokens.flatMap(expand).map((l) => l.replace(/^@/, "")))];
+    return logins.map((l) => `@${l}`).join(" ");
 }
 function fill(template, vars) {
     return template.replace(/\{(\w+)\}/g, (_, key) => (key in vars ? String(vars[key]) : `{${key}}`));

@@ -113,6 +113,7 @@ export function makeItem(
           repoName: content.repoName ?? "repo",
           assignees: content.assignees ?? [],
           labels: content.labels ?? [],
+          reviewers: content.reviewers ?? [],
           subIssues: content.subIssues,
           parent: content.parent,
         }

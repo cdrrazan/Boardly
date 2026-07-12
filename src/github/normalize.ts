@@ -10,6 +10,34 @@ function mapIteration(i: any) {
   return { id: i.id, title: i.title, startDate: i.startDate, duration: i.duration };
 }
 
+/** A single `requestedReviewer` union node → a mentionable handle, or null. */
+function reviewerHandle(r: any): string | null {
+  if (!r) return null;
+  if (r.__typename === "User") return r.login ?? null;
+  if (r.__typename === "Team") return r.slug ? `${r.organization?.login ?? ""}/${r.slug}`.replace(/^\//, "") : null;
+  return null;
+}
+
+/**
+ * Collect the *pending* requested reviewers for a content node: the PR's own
+ * `reviewRequests` when it's a PullRequest, or the linked (closing) PRs'
+ * requests when it's an Issue. Deduplicated; empty once all have reviewed.
+ */
+function extractReviewers(c: any): string[] {
+  const out: string[] = [];
+  const collect = (rr: any) => {
+    for (const n of rr?.nodes ?? []) {
+      const handle = reviewerHandle(n.requestedReviewer);
+      if (handle) out.push(handle);
+    }
+  };
+  if (c.__typename === "PullRequest") collect(c.reviewRequests);
+  else if (c.__typename === "Issue") {
+    for (const pr of c.closedByPullRequestsReferences?.nodes ?? []) collect(pr.reviewRequests);
+  }
+  return [...new Set(out)];
+}
+
 /**
  * Normalize the project's `fields.nodes` array.
  * Single-select fields keep their `options`; iteration fields expose their
@@ -83,6 +111,7 @@ export function normalizeItem(node: any): ProjectItem {
       repoName: c.repository.name,
       assignees: (c.assignees?.nodes ?? []).map((a: any) => a.login),
       labels: (c.labels?.nodes ?? []).map((l: any) => l.name),
+      reviewers: extractReviewers(c),
       subIssues: c.subIssuesSummary
         ? {
             total: c.subIssuesSummary.total,

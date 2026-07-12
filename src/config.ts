@@ -30,8 +30,13 @@ const autoAssignRuleSchema = z.object({
 const staleRuleSchema = z.object({
   status: z.string().min(1),
   days: z.number().positive(),
-  // Who to @mention: "assignees" or an explicit list of logins.
-  notify: z.union([z.literal("assignees"), z.array(z.string().min(1))]).default("assignees"),
+  // Who to @mention. A bare token — "assignees" (the card's own assignees) or
+  // "reviewers" (pending review requests on the card's PR / linked PR) — or a
+  // list mixing those tokens with explicit logins, e.g. ["reviewers", "lead"].
+  // "reviewers" falls back to the assignees when no review is pending.
+  notify: z
+    .union([z.literal("assignees"), z.literal("reviewers"), z.array(z.string().min(1))])
+    .default("assignees"),
   message: z.string().optional(),
 });
 

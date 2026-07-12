@@ -30,6 +30,12 @@ export interface IssueContent {
   repoName: string;
   assignees: string[];
   labels: string[];
+  /**
+   * Logins/team-slugs with a *pending* review request — the PR's own
+   * `reviewRequests` when this card is a PR, or the linked PR's when it's an
+   * issue. Empty once every requested reviewer has submitted their review.
+   */
+  reviewers: string[];
   subIssues?: { total: number; completed: number; percentCompleted: number };
   parent?: { number: number; title: string; url: string };
 }

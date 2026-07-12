@@ -76,10 +76,11 @@ features:
         message: "Heads up — #{number} **{title}** has sat in **{status}** for {days} days. Still moving, or blocked?"
       - status: "In Review"
         days: 2
-        notify: assignees                    # dynamic — pings whoever owns the card
+        notify: reviewers                     # dynamic — pings the PR's pending reviewers
+                                              # (falls back to assignees if none pending)
       - status: "Blocked"
         days: 1
-        notify: assignees                    # dynamic — pings the card's own assignees
+        notify: ["assignees", "eng-manager"]  # the card's owners + a fixed escalation contact
 
   # 6) Don't let a parent close while its sub-issues are open; write completion %
   #    to the Progress field so the board shows real roll-up.

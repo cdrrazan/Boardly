@@ -252,6 +252,59 @@ test("stale-nudge comments and @-mentions assignees past the threshold", async (
   assert.match(client.comments[0].body, /@alice/);
 });
 
+test("stale-nudge 'reviewers' token @-mentions the card's pending reviewers", async () => {
+  const cfg = makeConfig({
+    features: { staleNudge: { enabled: true, rules: [{ status: "In Review", days: 2, notify: "reviewers" }] } },
+  });
+  const stale = makeItem([statusValue("In Review", "2026-07-01T00:00:00Z")], {
+    number: 9,
+    assignees: ["alice"],
+    reviewers: ["carol", "acme/platform"],
+  });
+  const client = new FakeClient().withComments([]);
+
+  await runStaleNudge(makeCtx(makeGraph([statusField(["In Review"])], [stale]), cfg, client));
+
+  assert.equal(client.comments.length, 1);
+  assert.match(client.comments[0].body, /@carol/);
+  assert.match(client.comments[0].body, /@acme\/platform/);
+  // Reviewers were found, so it does NOT fall back to the assignee.
+  assert.doesNotMatch(client.comments[0].body, /@alice/);
+});
+
+test("stale-nudge 'reviewers' falls back to assignees when no review is pending", async () => {
+  const cfg = makeConfig({
+    features: { staleNudge: { enabled: true, rules: [{ status: "In Review", days: 2, notify: "reviewers" }] } },
+  });
+  const stale = makeItem([statusValue("In Review", "2026-07-01T00:00:00Z")], {
+    number: 10,
+    assignees: ["alice"],
+    reviewers: [],
+  });
+  const client = new FakeClient().withComments([]);
+
+  await runStaleNudge(makeCtx(makeGraph([statusField(["In Review"])], [stale]), cfg, client));
+
+  assert.equal(client.comments.length, 1);
+  assert.match(client.comments[0].body, /@alice/);
+});
+
+test("stale-nudge expands 'assignees' inside a list and de-dupes with an explicit login", async () => {
+  const cfg = makeConfig({
+    features: { staleNudge: { enabled: true, rules: [{ status: "Blocked", days: 1, notify: ["assignees", "eng-lead"] }] } },
+  });
+  const stale = makeItem([statusValue("Blocked", "2026-07-01T00:00:00Z")], { number: 11, assignees: ["alice"] });
+  const client = new FakeClient().withComments([]);
+
+  await runStaleNudge(makeCtx(makeGraph([statusField(["Blocked"])], [stale]), cfg, client));
+
+  assert.equal(client.comments.length, 1);
+  // The literal token "assignees" must NOT leak through as @assignees.
+  assert.doesNotMatch(client.comments[0].body, /@assignees/);
+  assert.match(client.comments[0].body, /@alice/);
+  assert.match(client.comments[0].body, /@eng-lead/);
+});
+
 test("stale-nudge does not re-nudge when a marker comment already exists for this stint", async () => {
   const cfg = makeConfig({
     features: { staleNudge: { enabled: true, rules: [{ status: "In Progress", days: 3, notify: "assignees" }] } },

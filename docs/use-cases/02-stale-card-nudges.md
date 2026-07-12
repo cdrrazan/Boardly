@@ -21,8 +21,21 @@ features:
         message: "Heads up — this has been **In Progress** for {days} days. Any blockers?"
       - status: "In Review"
         days: 2
-        notify: ["team-lead", "qa-bot"]   # explicit logins instead of assignees
+        notify: reviewers                 # the PR's pending review requests
 ```
+
+## Who gets @-mentioned
+
+`notify` takes a bare token, or a list mixing tokens with explicit logins:
+
+| Value | Resolves to |
+|-------|-------------|
+| `assignees` | the card's own assignees |
+| `reviewers` | **pending** review requests on the card's PR — or, for an issue card, on the PR that closes it. Falls back to the assignees when nobody's review is still pending. |
+| `["team-lead", "qa-bot"]` | those exact logins |
+| `["reviewers", "eng-manager"]` | pending reviewers **plus** a fixed escalation contact |
+
+`reviewers` reflects *outstanding* requests only — once a reviewer submits their review GitHub drops the request, so an "In Review" nudge naturally targets whoever the card is still waiting on. Teams (`@org/team`) are mentioned as-is.
 
 Run it on a cadence:
 
@@ -34,7 +47,7 @@ on:
 
 ## What happens
 
-For each rule, any card whose status hasn't changed in more than `days` gets a comment that @-mentions either its assignees or the explicit list you provide. The message supports `{days}`, `{status}`, `{number}`, and `{title}` placeholders.
+For each rule, any card whose status hasn't changed in more than `days` gets a comment that @-mentions whoever `notify` resolves to (see the table above). The message supports `{days}`, `{status}`, `{number}`, and `{title}` placeholders.
 
 **No spam:** each nudge embeds a hidden marker. The card won't be nudged again until its status actually changes, so daily runs won't re-ping the same stale card.
 

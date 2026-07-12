@@ -54,11 +54,14 @@ features:
     rules:
       - status: "In Progress"
         days: 3
-        notify: assignees      # or an explicit list: ["alice", "bob"]
+        # notify: "assignees" | "reviewers" | a list mixing tokens + logins.
+        # "reviewers" = pending review requests on the card's PR (or its linked
+        # PR), falling back to assignees when none are pending.
+        notify: assignees      # or e.g. ["assignees", "alice"]
         message: "Heads up — this has been **In Progress** for {days} days. Any blockers?"
       - status: "In Review"
         days: 2
-        notify: assignees
+        notify: reviewers      # ping whoever the PR is still waiting on
 
   # Block "Done" while sub-issues remain open, and roll completion % up.
   subIssueGate:

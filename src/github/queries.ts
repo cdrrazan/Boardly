@@ -1,5 +1,12 @@
 /** GraphQL documents for reading and mutating Projects (v2). */
 
+/** A requested reviewer is either a User (login) or a Team (org/slug). */
+const REVIEWER_FIELDS = /* GraphQL */ `
+  __typename
+  ... on User { login }
+  ... on Team { slug organization { login } }
+`;
+
 const ITEM_FIELDS = /* GraphQL */ `
   id
   updatedAt
@@ -50,6 +57,11 @@ const ITEM_FIELDS = /* GraphQL */ `
       labels(first: 30) { nodes { name } }
       subIssuesSummary { total completed percentCompleted }
       parent { number title url }
+      closedByPullRequestsReferences(first: 5, includeClosedPrs: false) {
+        nodes {
+          reviewRequests(first: 20) { nodes { requestedReviewer { ${REVIEWER_FIELDS} } } }
+        }
+      }
     }
     ... on PullRequest {
       id
@@ -63,6 +75,7 @@ const ITEM_FIELDS = /* GraphQL */ `
       repository { owner { login } name }
       assignees(first: 20) { nodes { login } }
       labels(first: 30) { nodes { name } }
+      reviewRequests(first: 20) { nodes { requestedReviewer { ${REVIEWER_FIELDS} } } }
     }
   }
 `;

@@ -40,7 +40,7 @@ export async function runStaleNudge(ctx: RunContext): Promise<void> {
     );
     if (alreadyNudged) continue;
 
-    const mentions = resolveMentions(rule.notify, content.assignees);
+    const mentions = resolveMentions(rule.notify, content.assignees, content.reviewers);
     const template =
       rule.message ?? "This item has been in **{status}** for {days} day(s) with no status change. Any update?";
     const body =
@@ -65,9 +65,21 @@ export async function runStaleNudge(ctx: RunContext): Promise<void> {
   }
 }
 
-function resolveMentions(notify: "assignees" | string[], assignees: string[]): string {
-  const logins = notify === "assignees" ? assignees : notify;
-  return logins.map((l) => `@${l.replace(/^@/, "")}`).join(" ");
+/**
+ * Turn a rule's `notify` into an @-mention string. The tokens "assignees" and
+ * "reviewers" expand to the card's own people — whether given bare or mixed
+ * into a list alongside literal logins. "reviewers" falls back to the assignees
+ * when no review is pending, so a stuck card never nudges nobody. Deduplicated.
+ */
+function resolveMentions(notify: "assignees" | "reviewers" | string[], assignees: string[], reviewers: string[]): string {
+  const expand = (token: string): string[] => {
+    if (token === "assignees") return assignees;
+    if (token === "reviewers") return reviewers.length > 0 ? reviewers : assignees;
+    return [token];
+  };
+  const tokens = Array.isArray(notify) ? notify : [notify];
+  const logins = [...new Set(tokens.flatMap(expand).map((l) => l.replace(/^@/, "")))];
+  return logins.map((l) => `@${l}`).join(" ");
 }
 
 function fill(template: string, vars: Record<string, string | number>): string {
