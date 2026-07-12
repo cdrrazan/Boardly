@@ -102,6 +102,14 @@ export class ProjectClient {
     await this.octokit.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
   }
 
+  /**
+   * Assign users to an issue/PR. Additive — existing assignees are kept.
+   * GitHub silently ignores logins that can't be assigned (non-collaborators).
+   */
+  async addAssignees(owner: string, repo: string, issueNumber: number, assignees: string[]): Promise<void> {
+    await this.octokit.rest.issues.addAssignees({ owner, repo, issue_number: issueNumber, assignees });
+  }
+
   /** Create a comment on an issue/PR (used for nudges, gate warnings, digests, and standups). */
   async comment(owner: string, repo: string, issueNumber: number, body: string): Promise<void> {
     await this.octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });

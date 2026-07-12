@@ -53,6 +53,7 @@ flowchart LR
 |:--:|---------|--------------|
 | 🔁 | **Sprint rollover** | When an iteration ends, move unfinished items into the next iteration so nothing is stranded in a closed sprint. Optionally tag each rolled card with the new sprint's label (created if missing). |
 | ▶️ | **Sprint start** | When a sprint becomes active, promote cards you pre-parked in it (e.g. **Backlog → Ready**). Only touches cards parked *before* the sprint started, so a deliberate mid-sprint move back is respected. |
+| 👤 | **Auto-assign by label** | A CODEOWNERS-style map from label → owner. Unassigned tickets in a status (e.g. Ready) get the configured assignee — `UI → @zach`, `security → @rajan`. Opt-in; never overrides an existing assignee. |
 | 🔔 | **Stale-card nudges** | @-mention owners when a card sits in a status past a threshold. De-duped so it never spams. |
 | 🧩 | **Sub-issue gating + roll-up** | Block a card from staying **Done** while it has open sub-issues; optionally write completion % into a progress field. |
 | 🏁 | **Sprint digest** | At iteration end, post completed-vs-carried-over counts and velocity. |
@@ -81,6 +82,7 @@ Every feature comes with a standalone, copy-pasteable recipe — **who it's for*
 | 12 | [Escalate cards ignored after a nudge](./docs/use-cases/12-escalation-with-revert.md) | 🔔 Stale + 🧩 gate |
 | 13 | [Send digests & alerts to Slack and email](./docs/use-cases/13-notifications.md) | 📣 Notifications |
 | 14 | [Promote pre-parked cards when a sprint starts](./docs/use-cases/14-sprint-start.md) | ▶️ Sprint start |
+| 15 | [Auto-assign tickets by label](./docs/use-cases/15-auto-assign.md) | 👤 Auto-assign |
 
 > New here? Start with [01 · Sprint rollover](./docs/use-cases/01-sprint-rollover.md) and [08 · Dry-run preview](./docs/use-cases/08-dry-run-preview.md).
 
@@ -150,7 +152,7 @@ For a board that pulls issues from several repositories, see the [multi-repo rec
 |-------|---------|-------------|
 | `token` | — _(required)_ | Token with `project` + `issues` access to the target project. |
 | `config-path` | `.github/project-automation.yml` | Path to the config file. |
-| `only` | `""` | Run just one feature: `rollover`, `sprint-start`, `stale-nudge`, `sub-issue-gate`, `digest`, `standup`, `priority-sort`. Empty runs every enabled feature. |
+| `only` | `""` | Run just one feature: `rollover`, `sprint-start`, `auto-assign`, `stale-nudge`, `sub-issue-gate`, `digest`, `standup`, `priority-sort`. Empty runs every enabled feature. |
 | `dry-run` | `false` | Log every intended action to the audit trail without making changes. |
 
 **Output:** `actions-count` — number of mutating actions taken (or that would be taken in dry-run).

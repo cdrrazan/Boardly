@@ -52535,6 +52535,12 @@ const postTargetSchema = objectType({
 }).refine((v) => v.issue !== undefined || v.createIssueTitle !== undefined, {
     message: "postTo requires either `issue` or `createIssueTitle`",
 });
+const autoAssignRuleSchema = objectType({
+    // Ticket label to match (case-insensitive).
+    label: stringType().min(1),
+    // GitHub usernames (logins, not display names) to assign when the label matches.
+    assignees: arrayType(stringType().min(1)).min(1),
+});
 const staleRuleSchema = objectType({
     status: stringType().min(1),
     days: numberType().positive(),
@@ -52575,6 +52581,13 @@ const configSchema = objectType({
             // Status a pre-parked card is promoted to when its sprint becomes active.
             toStatus: stringType().min(1).default("Ready"),
         }).default({ enabled: false, fromStatuses: ["Backlog"], toStatus: "Ready" }),
+        autoAssign: objectType({
+            enabled: booleanType().default(false),
+            // Only assign tickets currently in these statuses; empty = any non-done.
+            onlyStatuses: arrayType(stringType()).default(["Ready"]),
+            // Label → assignee rules. A ticket with no matching rule is left untouched.
+            rules: arrayType(autoAssignRuleSchema).default([]),
+        }).default({ enabled: false, onlyStatuses: ["Ready"], rules: [] }),
         staleNudge: objectType({
             enabled: booleanType().default(false),
             rules: arrayType(staleRuleSchema).default([]),
@@ -52968,6 +52981,13 @@ class ProjectClient {
     async addLabels(owner, repo, issueNumber, labels) {
         await this.octokit.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
     }
+    /**
+     * Assign users to an issue/PR. Additive — existing assignees are kept.
+     * GitHub silently ignores logins that can't be assigned (non-collaborators).
+     */
+    async addAssignees(owner, repo, issueNumber, assignees) {
+        await this.octokit.rest.issues.addAssignees({ owner, repo, issue_number: issueNumber, assignees });
+    }
     /** Create a comment on an issue/PR (used for nudges, gate warnings, digests, and standups). */
     async comment(owner, repo, issueNumber, body) {
         await this.octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });
@@ -53358,6 +53378,54 @@ async function runSprintStart(ctx) {
     }
 }
 
+;// CONCATENATED MODULE: ./src/features/autoAssign.ts
+
+/**
+ * Auto-assign by label.
+ *
+ * A CODEOWNERS-style map from ticket **label** → GitHub **assignees**. When a
+ * ticket in one of `onlyStatuses` (default "Ready") is still unassigned and
+ * carries a mapped label, assign the configured users. Pairs naturally with
+ * `sprintStart`: a sprint flips → parked cards become Ready → their owners get
+ * assigned in the same run. A ticket matching no rule is left untouched.
+ */
+async function runAutoAssign(ctx) {
+    const { cfg, graph, client, audit } = ctx;
+    const { onlyStatuses, rules } = cfg.features.autoAssign;
+    if (rules.length === 0)
+        return; // opt-in: nothing to do without a mapping
+    const only = onlyStatuses.map((s) => s.toLowerCase());
+    for (const item of graph.items) {
+        if (!item.content)
+            continue; // draft cards have no issue to assign
+        if (isDone(item, cfg))
+            continue;
+        const status = statusOf(item, cfg);
+        if (only.length > 0 && !(status && only.includes(status.toLowerCase())))
+            continue;
+        // Only assign tickets nobody owns yet — never override a human's choice.
+        if (item.content.assignees.length > 0)
+            continue;
+        const itemLabels = item.content.labels.map((l) => l.toLowerCase());
+        const toAssign = new Set();
+        for (const rule of rules) {
+            if (itemLabels.includes(rule.label.toLowerCase())) {
+                for (const a of rule.assignees)
+                    toAssign.add(a);
+            }
+        }
+        if (toAssign.size === 0)
+            continue;
+        const assignees = [...toAssign];
+        const { repoOwner, repoName, number } = item.content;
+        const label = `#${number} ${item.content.title}`;
+        audit.record("autoAssign", "assign", label, `→ ${assignees.map((a) => `@${a}`).join(", ")}`);
+        if (!ctx.dryRun) {
+            await client.addAssignees(repoOwner, repoName, number, assignees);
+        }
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/util/dates.ts
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 /** Fractional number of days from `from` to `to` (negative if `to` precedes `from`). */
@@ -53714,10 +53782,12 @@ function sameOrder(a, b) {
 
 
 
+
 /** Maps each feature key (also the accepted values of the `only` input) to its runner. */
 const RUNNERS = {
     rollover: runRollover,
     "sprint-start": runSprintStart,
+    "auto-assign": runAutoAssign,
     "stale-nudge": runStaleNudge,
     "sub-issue-gate": runSubIssueGate,
     digest: runDigest,
@@ -53731,6 +53801,8 @@ function isEnabled(cfg, key) {
             return cfg.features.rollover.enabled;
         case "sprint-start":
             return cfg.features.sprintStart.enabled;
+        case "auto-assign":
+            return cfg.features.autoAssign.enabled;
         case "stale-nudge":
             return cfg.features.staleNudge.enabled;
         case "sub-issue-gate":

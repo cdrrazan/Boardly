@@ -31,6 +31,16 @@ features:
     fromStatuses: ["Backlog"] # statuses treated as "not started yet"
     toStatus: "Ready"         # promote pre-parked cards to this status
 
+  # Auto-assign unassigned tickets by label (CODEOWNERS-style). Opt-in.
+  autoAssign:
+    enabled: false
+    onlyStatuses: ["Ready"]   # only assign tickets in these statuses; empty = any non-done
+    rules:                    # a ticket with no matching label is left unassigned
+      - label: "UI"
+        assignees: ["zachgrande"]   # GitHub usernames (logins), not display names
+      - label: "security"
+        assignees: ["cdrrazan"]
+
   # Nudge owners when a card sits in a column too long.
   staleNudge:
     enabled: true

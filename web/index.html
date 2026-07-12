@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Boardly — Put your GitHub Projects board on autopilot</title>
-  <meta name="description" content="Boardly is a free, open-source GitHub Action that automates GitHub Projects (v2): sprint rollover & start, stale-card nudges, sub-issue gating, digests, standups, priority sorting, and Slack/email notifications — all from one YAML file." />
+  <meta name="description" content="Boardly is a free, open-source GitHub Action that automates GitHub Projects (v2): sprint rollover & start, auto-assign, stale-card nudges, sub-issue gating, digests, standups, priority sorting, and Slack/email notifications — all from one YAML file." />
   <meta name="theme-color" content="#0b0d12" />
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
 
@@ -77,8 +77,8 @@
           <h1 class="hero__title">Put your GitHub Projects board on <span class="grad">autopilot</span>.</h1>
           <p class="hero__sub">
             Boardly is a free, open-source <strong>GitHub Action</strong> that automates <strong>GitHub Projects (v2)</strong> —
-            sprint rollover &amp; start, stale-card nudges, sub-issue gating, digests, standups, priority sorting, and
-            Slack/email notifications — all from one YAML file.
+            sprint rollover &amp; start, auto-assign, stale-card nudges, sub-issue gating, digests, standups, priority
+            sorting, and Slack/email notifications — all from one YAML file.
           </p>
           <div class="hero__cta">
             <a class="btn btn--primary btn--lg" href="https://github.com/cdrrazan/Boardly/blob/main/docs/GETTING_STARTED.md" target="_blank" rel="noopener">Get started free</a>
@@ -115,10 +115,10 @@
 
       <div class="marquee" aria-hidden="true">
         <div class="marquee__track">
-          <span>Sprint rollover</span><span>•</span><span>Sprint start</span><span>•</span><span>Stale nudges</span><span>•</span><span>Sub-issue gating</span><span>•</span>
+          <span>Sprint rollover</span><span>•</span><span>Sprint start</span><span>•</span><span>Auto-assign</span><span>•</span><span>Stale nudges</span><span>•</span><span>Sub-issue gating</span><span>•</span>
           <span>Sprint digest</span><span>•</span><span>Daily standup</span><span>•</span><span>Priority sort</span><span>•</span>
           <span>Slack &amp; email</span><span>•</span><span>Audit trail</span><span>•</span><span>Dry-run</span><span>•</span>
-          <span>Sprint rollover</span><span>•</span><span>Sprint start</span><span>•</span><span>Stale nudges</span><span>•</span><span>Sub-issue gating</span><span>•</span>
+          <span>Sprint rollover</span><span>•</span><span>Sprint start</span><span>•</span><span>Auto-assign</span><span>•</span><span>Stale nudges</span><span>•</span><span>Sub-issue gating</span><span>•</span>
           <span>Sprint digest</span><span>•</span><span>Daily standup</span><span>•</span><span>Priority sort</span><span>•</span>
           <span>Slack &amp; email</span><span>•</span><span>Audit trail</span><span>•</span><span>Dry-run</span><span>•</span>
         </div>
@@ -136,6 +136,7 @@
         <div class="grid grid--features">
           <article class="card reveal"><div class="card__icon">🔁</div><h3>Sprint rollover</h3><p>When an iteration ends, unfinished cards move into the next sprint automatically — nothing stranded in a closed iteration. Optionally tag each rolled card with the new sprint's label.</p></article>
           <article class="card reveal"><div class="card__icon">▶️</div><h3>Sprint start</h3><p>When a sprint becomes active, promote the cards you pre-parked in it — e.g. <em>Backlog → Ready</em>. Only touches cards parked before the sprint started.</p></article>
+          <article class="card reveal"><div class="card__icon">👤</div><h3>Auto-assign by label</h3><p>A CODEOWNERS-style label → owner map. Unassigned <em>Ready</em> tickets get their owner — <code>UI → @zach</code>, <code>security → @rajan</code>. Never overrides a human.</p></article>
           <article class="card reveal"><div class="card__icon">🔔</div><h3>Stale-card nudges</h3><p>@-mention owners when a card sits in a column too long. De-duped, so it never spams the same card twice.</p></article>
           <article class="card reveal"><div class="card__icon">🧩</div><h3>Sub-issue gating + roll-up</h3><p>Block a card from staying <em>Done</em> while sub-issues are open, and write live completion&nbsp;% into a progress field.</p></article>
           <article class="card reveal"><div class="card__icon">🏁</div><h3>Sprint digest</h3><p>At iteration end, post completed-vs-carried-over counts and velocity to an issue, Slack, or email.</p></article>
@@ -214,7 +215,7 @@
         <div class="section__head reveal">
           <p class="eyebrow">Real-world recipes</p>
           <h2>Ready-made for how teams actually work</h2>
-          <p class="lede">Fourteen copy-pasteable recipes in the docs — here are a few favorites.</p>
+          <p class="lede">Fifteen copy-pasteable recipes in the docs — here are a few favorites.</p>
         </div>
         <div class="grid grid--uses">
           <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/01-sprint-rollover.md" target="_blank" rel="noopener"><h3>Carry work into the next sprint →</h3><p>Never hand-move unfinished tickets on Monday again.</p></a>
@@ -223,7 +224,8 @@
           <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/08-dry-run-preview.md" target="_blank" rel="noopener"><h3>Preview safely with dry-run →</h3><p>See exactly what it would do before it does anything.</p></a>
           <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/03-sub-issue-gating.md" target="_blank" rel="noopener"><h3>Stop premature “Done” →</h3><p>Gate epics until every sub-issue is closed.</p></a>
           <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/14-sprint-start.md" target="_blank" rel="noopener"><h3>Promote cards when a sprint starts →</h3><p>Pre-parked Backlog tickets flip to Ready the day the sprint begins.</p></a>
-          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/tree/main/docs/use-cases" target="_blank" rel="noopener"><h3>Browse all 14 recipes →</h3><p>The full cookbook in the repo docs.</p></a>
+          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/blob/main/docs/use-cases/15-auto-assign.md" target="_blank" rel="noopener"><h3>Auto-assign by label →</h3><p>UI to Zach, security to Rajan — no more hand-assigning.</p></a>
+          <a class="usecard reveal" href="https://github.com/cdrrazan/Boardly/tree/main/docs/use-cases" target="_blank" rel="noopener"><h3>Browse all 15 recipes →</h3><p>The full cookbook in the repo docs.</p></a>
         </div>
       </div>
     </section>

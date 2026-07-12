@@ -17,6 +17,7 @@ import {
 } from "./helpers.js";
 import { runRollover } from "../src/features/rollover.js";
 import { runSprintStart } from "../src/features/sprintStart.js";
+import { runAutoAssign } from "../src/features/autoAssign.js";
 import { runStaleNudge } from "../src/features/staleNudge.js";
 import { runSubIssueGate } from "../src/features/subIssueGate.js";
 import { runPrioritySort } from "../src/features/prioritySort.js";
@@ -119,6 +120,49 @@ test("sprint-start in dry-run records intent but mutates nothing", async () => {
   await runSprintStart(ctx);
 
   assert.equal(client.singleSelects.length, 0);
+  assert.equal(ctx.audit.count, 1);
+});
+
+test("auto-assign maps labels to owners, unions multiple matches, and skips assigned/non-Ready/unmapped", async () => {
+  const cfg = makeConfig({
+    features: {
+      autoAssign: {
+        enabled: true,
+        onlyStatuses: ["Ready"],
+        rules: [
+          { label: "UI", assignees: ["zach"] },
+          { label: "security", assignees: ["rajan"] },
+        ],
+      },
+    },
+  });
+  const fields = [statusField(["Ready", "Backlog", "Done"])];
+  const ui = makeItem([statusValue("Ready", "2026-07-09T00:00:00Z")], { number: 1, labels: ["UI"] });
+  const both = makeItem([statusValue("Ready", "2026-07-09T00:00:00Z")], { number: 2, labels: ["UI", "security"] });
+  const alreadyOwned = makeItem([statusValue("Ready", "2026-07-09T00:00:00Z")], { number: 3, labels: ["UI"], assignees: ["someone"] });
+  const notReady = makeItem([statusValue("Backlog", "2026-07-09T00:00:00Z")], { number: 4, labels: ["UI"] });
+  const unmapped = makeItem([statusValue("Ready", "2026-07-09T00:00:00Z")], { number: 5, labels: ["docs"] });
+  const client = new FakeClient();
+
+  await runAutoAssign(makeCtx(makeGraph(fields, [ui, both, alreadyOwned, notReady, unmapped]), cfg, client));
+
+  assert.deepEqual(client.assigneesAdded, [
+    { number: 1, assignees: ["zach"] },
+    { number: 2, assignees: ["zach", "rajan"] },
+  ]);
+});
+
+test("auto-assign in dry-run records intent but assigns nobody", async () => {
+  const cfg = makeConfig({
+    features: { autoAssign: { enabled: true, onlyStatuses: ["Ready"], rules: [{ label: "UI", assignees: ["zach"] }] } },
+  });
+  const item = makeItem([statusValue("Ready", "2026-07-09T00:00:00Z")], { number: 1, labels: ["UI"] });
+  const client = new FakeClient();
+  const ctx = makeCtx(makeGraph([statusField(["Ready"])], [item]), cfg, client, true);
+
+  await runAutoAssign(ctx);
+
+  assert.equal(client.assigneesAdded.length, 0);
   assert.equal(ctx.audit.count, 1);
 });
 

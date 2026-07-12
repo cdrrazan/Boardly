@@ -20,6 +20,13 @@ const postTargetSchema = z.object({
   message: "postTo requires either `issue` or `createIssueTitle`",
 });
 
+const autoAssignRuleSchema = z.object({
+  // Ticket label to match (case-insensitive).
+  label: z.string().min(1),
+  // GitHub usernames (logins, not display names) to assign when the label matches.
+  assignees: z.array(z.string().min(1)).min(1),
+});
+
 const staleRuleSchema = z.object({
   status: z.string().min(1),
   days: z.number().positive(),
@@ -62,6 +69,14 @@ export const configSchema = z.object({
       // Status a pre-parked card is promoted to when its sprint becomes active.
       toStatus: z.string().min(1).default("Ready"),
     }).default({ enabled: false, fromStatuses: ["Backlog"], toStatus: "Ready" }),
+
+    autoAssign: z.object({
+      enabled: z.boolean().default(false),
+      // Only assign tickets currently in these statuses; empty = any non-done.
+      onlyStatuses: z.array(z.string()).default(["Ready"]),
+      // Label → assignee rules. A ticket with no matching rule is left untouched.
+      rules: z.array(autoAssignRuleSchema).default([]),
+    }).default({ enabled: false, onlyStatuses: ["Ready"], rules: [] }),
 
     staleNudge: z.object({
       enabled: z.boolean().default(false),
