@@ -81,6 +81,27 @@ test("rollover label add in dry-run records intent but creates/adds nothing", as
   assert.equal(ctx.audit.count, 2);
 });
 
+test("rollover strips pulled-in label variants (case/hyphen/space insensitive), keeps other labels", async () => {
+  const cfg = makeConfig({ features: { rollover: { enabled: true, removeLabels: ["pulled-in", "pull-in"] } } });
+  const fields = [statusField(["Todo", "Done"]), iterationField([{ id: "it2", title: "S6" }], [{ id: "it1", title: "S5" }])];
+  // Each rolled card carries a differently-spelled pulled-in label plus one to keep.
+  const a = makeItem([statusValue("Todo", "2026-07-01T00:00:00Z"), iterationValue("it1", "S5")], { number: 1, labels: ["Pulled In", "keep"] });
+  const b = makeItem([statusValue("Todo", "2026-07-01T00:00:00Z"), iterationValue("it1", "S5")], { number: 2, labels: ["pulled-in"] });
+  const c = makeItem([statusValue("Todo", "2026-07-01T00:00:00Z"), iterationValue("it1", "S5")], { number: 3, labels: ["pull in"] });
+  const d = makeItem([statusValue("Todo", "2026-07-01T00:00:00Z"), iterationValue("it1", "S5")], { number: 4, labels: ["PULL_IN"] });
+  const client = new FakeClient();
+
+  await runRollover(makeCtx(makeGraph(fields, [a, b, c, d]), cfg, client));
+
+  // The actual (original-cased) label name is removed; "keep" is left alone.
+  assert.deepEqual(client.labelsRemoved, [
+    { number: 1, name: "Pulled In" },
+    { number: 2, name: "pulled-in" },
+    { number: 3, name: "pull in" },
+    { number: 4, name: "PULL_IN" },
+  ]);
+});
+
 test("sprint-start promotes cards parked before the sprint started, skipping mid-sprint moves and non-backlog", async () => {
   const cfg = makeConfig({ features: { sprintStart: { enabled: true, fromStatuses: ["Backlog"], toStatus: "Ready" } } });
   // Helper's iterationField start date is 2026-06-01, before NOW (2026-07-09) → the sprint has started.

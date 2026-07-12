@@ -60,7 +60,10 @@ export const configSchema = z.object({
       addSprintLabel: z.boolean().default(false),
       // Hex color (no leading '#') used when the sprint label must be created.
       sprintLabelColor: z.string().regex(/^[0-9a-fA-F]{6}$/, "sprintLabelColor must be a 6-digit hex color without a leading '#'").default("772fd1"),
-    }).default({ enabled: false, onlyStatuses: [], addSprintLabel: false, sprintLabelColor: "772fd1" }),
+      // Labels to strip from each rolled card (e.g. "pulled-in"). Matched case-insensitively,
+      // ignoring spaces/hyphens/underscores.
+      removeLabels: z.array(z.string()).default([]),
+    }).default({ enabled: false, onlyStatuses: [], addSprintLabel: false, sprintLabelColor: "772fd1", removeLabels: [] }),
 
     sprintStart: z.object({
       enabled: z.boolean().default(false),

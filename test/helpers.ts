@@ -18,6 +18,7 @@ export class FakeClient {
   createdIssues: { title: string }[] = [];
   ensuredLabels: { name: string; color: string }[] = [];
   labelsAdded: { number: number; labels: string[] }[] = [];
+  labelsRemoved: { number: number; name: string }[] = [];
   assigneesAdded: { number: number; assignees: string[] }[] = [];
   private cannedComments: { body: string; createdAt: string }[] = [];
 
@@ -43,6 +44,9 @@ export class FakeClient {
   }
   async addLabels(_o: string, _r: string, number: number, labels: string[]) {
     this.labelsAdded.push({ number, labels });
+  }
+  async removeLabel(_o: string, _r: string, number: number, name: string) {
+    this.labelsRemoved.push({ number, name });
   }
   async addAssignees(_o: string, _r: string, number: number, assignees: string[]) {
     this.assigneesAdded.push({ number, assignees });

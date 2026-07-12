@@ -52573,7 +52573,10 @@ const configSchema = objectType({
             addSprintLabel: booleanType().default(false),
             // Hex color (no leading '#') used when the sprint label must be created.
             sprintLabelColor: stringType().regex(/^[0-9a-fA-F]{6}$/, "sprintLabelColor must be a 6-digit hex color without a leading '#'").default("772fd1"),
-        }).default({ enabled: false, onlyStatuses: [], addSprintLabel: false, sprintLabelColor: "772fd1" }),
+            // Labels to strip from each rolled card (e.g. "pulled-in"). Matched case-insensitively,
+            // ignoring spaces/hyphens/underscores.
+            removeLabels: arrayType(stringType()).default([]),
+        }).default({ enabled: false, onlyStatuses: [], addSprintLabel: false, sprintLabelColor: "772fd1", removeLabels: [] }),
         sprintStart: objectType({
             enabled: booleanType().default(false),
             // Statuses treated as "not started yet" (case-insensitive).
@@ -52986,6 +52989,10 @@ class ProjectClient {
     async addLabels(owner, repo, issueNumber, labels) {
         await this.octokit.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
     }
+    /** Remove a single label from an issue/PR by exact name (no-op tolerated if already gone). */
+    async removeLabel(owner, repo, issueNumber, name) {
+        await this.octokit.rest.issues.removeLabel({ owner, repo, issue_number: issueNumber, name });
+    }
     /**
      * Assign users to an issue/PR. Additive — existing assignees are kept.
      * GitHub silently ignores logins that can't be assigned (non-collaborators).
@@ -53294,9 +53301,14 @@ async function runRollover(ctx) {
     const from = completed[0]; // most recently completed
     const to = upcoming[0]; // current/next active iteration
     const onlyStatuses = cfg.features.rollover.onlyStatuses.map((s) => s.toLowerCase());
-    const { addSprintLabel, sprintLabelColor } = cfg.features.rollover;
+    const { addSprintLabel, sprintLabelColor, removeLabels } = cfg.features.rollover;
     const sprintLabel = to.title; // label named after the iteration items roll into
     const labelEnsured = new Set(); // repos where the sprint label has been created this run
+    // Fuzzy label key: case-insensitive and ignoring spaces/hyphens/underscores, so a single
+    // `pulled-in` entry also matches "Pulled In", "pulled_in", etc. (List "pull-in" separately —
+    // "pull" and "pulled" are different words and normalize differently.)
+    const normLabel = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const removeSet = new Set(removeLabels.map(normLabel));
     for (const item of graph.items) {
         const itemIteration = iterationOf(item, cfg);
         if (!itemIteration || itemIteration.iterationId !== from.id)
@@ -53323,6 +53335,18 @@ async function runRollover(ctx) {
                     labelEnsured.add(repoKey);
                 }
                 await client.addLabels(repoOwner, repoName, number, [sprintLabel]);
+            }
+        }
+        // Strip stale labels (e.g. "pulled-in") from each rolled card, matching any casing/spacing.
+        if (removeSet.size > 0 && item.content) {
+            const { repoOwner, repoName, number } = item.content;
+            for (const existing of item.content.labels) {
+                if (!removeSet.has(normLabel(existing)))
+                    continue;
+                audit.record("rollover", "remove-label", label, `-${existing}`);
+                if (!ctx.dryRun) {
+                    await client.removeLabel(repoOwner, repoName, number, existing);
+                }
             }
         }
     }

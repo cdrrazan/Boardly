@@ -102,6 +102,11 @@ export class ProjectClient {
     await this.octokit.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
   }
 
+  /** Remove a single label from an issue/PR by exact name (no-op tolerated if already gone). */
+  async removeLabel(owner: string, repo: string, issueNumber: number, name: string): Promise<void> {
+    await this.octokit.rest.issues.removeLabel({ owner, repo, issue_number: issueNumber, name });
+  }
+
   /**
    * Assign users to an issue/PR. Additive — existing assignees are kept.
    * GitHub silently ignores logins that can't be assigned (non-collaborators).

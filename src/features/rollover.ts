@@ -27,9 +27,14 @@ export async function runRollover(ctx: RunContext): Promise<void> {
   const from = completed[0]; // most recently completed
   const to = upcoming[0]; // current/next active iteration
   const onlyStatuses = cfg.features.rollover.onlyStatuses.map((s) => s.toLowerCase());
-  const { addSprintLabel, sprintLabelColor } = cfg.features.rollover;
+  const { addSprintLabel, sprintLabelColor, removeLabels } = cfg.features.rollover;
   const sprintLabel = to.title; // label named after the iteration items roll into
   const labelEnsured = new Set<string>(); // repos where the sprint label has been created this run
+  // Fuzzy label key: case-insensitive and ignoring spaces/hyphens/underscores, so a single
+  // `pulled-in` entry also matches "Pulled In", "pulled_in", etc. (List "pull-in" separately —
+  // "pull" and "pulled" are different words and normalize differently.)
+  const normLabel = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const removeSet = new Set(removeLabels.map(normLabel));
 
   for (const item of graph.items) {
     const itemIteration = iterationOf(item, cfg);
@@ -63,6 +68,18 @@ export async function runRollover(ctx: RunContext): Promise<void> {
           labelEnsured.add(repoKey);
         }
         await client.addLabels(repoOwner, repoName, number, [sprintLabel]);
+      }
+    }
+
+    // Strip stale labels (e.g. "pulled-in") from each rolled card, matching any casing/spacing.
+    if (removeSet.size > 0 && item.content) {
+      const { repoOwner, repoName, number } = item.content;
+      for (const existing of item.content.labels) {
+        if (!removeSet.has(normLabel(existing))) continue;
+        audit.record("rollover", "remove-label", label, `-${existing}`);
+        if (!ctx.dryRun) {
+          await client.removeLabel(repoOwner, repoName, number, existing);
+        }
       }
     }
   }
