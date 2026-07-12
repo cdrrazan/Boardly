@@ -16,6 +16,8 @@ export class FakeClient {
   numbers: { itemId: string; value: number }[] = [];
   comments: { number: number; body: string }[] = [];
   createdIssues: { title: string }[] = [];
+  ensuredLabels: { name: string; color: string }[] = [];
+  labelsAdded: { number: number; labels: string[] }[] = [];
   private cannedComments: { body: string; createdAt: string }[] = [];
 
   withComments(comments: { body: string; createdAt: string }[]): this {
@@ -34,6 +36,12 @@ export class FakeClient {
   }
   async setNumber(_p: string, itemId: string, _f: string, value: number) {
     this.numbers.push({ itemId, value });
+  }
+  async ensureLabel(_o: string, _r: string, name: string, color: string) {
+    this.ensuredLabels.push({ name, color });
+  }
+  async addLabels(_o: string, _r: string, number: number, labels: string[]) {
+    this.labelsAdded.push({ number, labels });
   }
   async comment(_o: string, _r: string, number: number, body: string) {
     this.comments.push({ number, body });
@@ -96,6 +104,7 @@ export function makeItem(
           repoOwner: content.repoOwner ?? "acme",
           repoName: content.repoName ?? "repo",
           assignees: content.assignees ?? [],
+          labels: content.labels ?? [],
           subIssues: content.subIssues,
           parent: content.parent,
         }

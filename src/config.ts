@@ -49,7 +49,11 @@ export const configSchema = z.object({
       enabled: z.boolean().default(false),
       // Only roll over items currently in these statuses; empty = all non-done.
       onlyStatuses: z.array(z.string()).default([]),
-    }).default({ enabled: false, onlyStatuses: [] }),
+      // Add a label named after the iteration items roll into (e.g. "2026-S06").
+      addSprintLabel: z.boolean().default(false),
+      // Hex color (no leading '#') used when the sprint label must be created.
+      sprintLabelColor: z.string().regex(/^[0-9a-fA-F]{6}$/, "sprintLabelColor must be a 6-digit hex color without a leading '#'").default("772fd1"),
+    }).default({ enabled: false, onlyStatuses: [], addSprintLabel: false, sprintLabelColor: "772fd1" }),
 
     staleNudge: z.object({
       enabled: z.boolean().default(false),

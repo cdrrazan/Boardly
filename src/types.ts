@@ -29,6 +29,7 @@ export interface IssueContent {
   repoOwner: string;
   repoName: string;
   assignees: string[];
+  labels: string[];
   subIssues?: { total: number; completed: number; percentCompleted: number };
   parent?: { number: number; title: string; url: string };
 }

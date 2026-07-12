@@ -83,6 +83,25 @@ export class ProjectClient {
     await this.octokit.graphql(setPositionMutation, { projectId, itemId, afterId });
   }
 
+  /**
+   * Ensure a repo label exists, creating it with `color` if missing.
+   * A label that already exists is left untouched (its color is not overwritten).
+   * @param color 6-digit hex without a leading `#`.
+   */
+  async ensureLabel(owner: string, repo: string, name: string, color: string): Promise<void> {
+    try {
+      await this.octokit.rest.issues.createLabel({ owner, repo, name, color });
+    } catch (err) {
+      // 422 = label already exists; anything else is a real failure.
+      if ((err as { status?: number }).status !== 422) throw err;
+    }
+  }
+
+  /** Add labels to an issue/PR. Labels already on the item are preserved (this is additive). */
+  async addLabels(owner: string, repo: string, issueNumber: number, labels: string[]): Promise<void> {
+    await this.octokit.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
+  }
+
   /** Create a comment on an issue/PR (used for nudges, gate warnings, digests, and standups). */
   async comment(owner: string, repo: string, issueNumber: number, body: string): Promise<void> {
     await this.octokit.rest.issues.createComment({ owner, repo, issue_number: issueNumber, body });

@@ -52563,7 +52563,11 @@ const configSchema = objectType({
             enabled: booleanType().default(false),
             // Only roll over items currently in these statuses; empty = all non-done.
             onlyStatuses: arrayType(stringType()).default([]),
-        }).default({ enabled: false, onlyStatuses: [] }),
+            // Add a label named after the iteration items roll into (e.g. "2026-S06").
+            addSprintLabel: booleanType().default(false),
+            // Hex color (no leading '#') used when the sprint label must be created.
+            sprintLabelColor: stringType().regex(/^[0-9a-fA-F]{6}$/, "sprintLabelColor must be a 6-digit hex color without a leading '#'").default("772fd1"),
+        }).default({ enabled: false, onlyStatuses: [], addSprintLabel: false, sprintLabelColor: "772fd1" }),
         staleNudge: objectType({
             enabled: booleanType().default(false),
             rules: arrayType(staleRuleSchema).default([]),
@@ -52724,6 +52728,7 @@ function normalizeItem(node) {
             repoOwner: c.repository.owner.login,
             repoName: c.repository.name,
             assignees: (c.assignees?.nodes ?? []).map((a) => a.login),
+            labels: (c.labels?.nodes ?? []).map((l) => l.name),
             subIssues: c.subIssuesSummary
                 ? {
                     total: c.subIssuesSummary.total,
@@ -52786,6 +52791,7 @@ const ITEM_FIELDS = /* GraphQL */ `
       updatedAt
       repository { owner { login } name }
       assignees(first: 20) { nodes { login } }
+      labels(first: 30) { nodes { name } }
       subIssuesSummary { total completed percentCompleted }
       parent { number title url }
     }
@@ -52800,6 +52806,7 @@ const ITEM_FIELDS = /* GraphQL */ `
       updatedAt
       repository { owner { login } name }
       assignees(first: 20) { nodes { login } }
+      labels(first: 30) { nodes { name } }
     }
   }
 `;
@@ -52934,6 +52941,25 @@ class ProjectClient {
      */
     async setPosition(projectId, itemId, afterId) {
         await this.octokit.graphql(setPositionMutation, { projectId, itemId, afterId });
+    }
+    /**
+     * Ensure a repo label exists, creating it with `color` if missing.
+     * A label that already exists is left untouched (its color is not overwritten).
+     * @param color 6-digit hex without a leading `#`.
+     */
+    async ensureLabel(owner, repo, name, color) {
+        try {
+            await this.octokit.rest.issues.createLabel({ owner, repo, name, color });
+        }
+        catch (err) {
+            // 422 = label already exists; anything else is a real failure.
+            if (err.status !== 422)
+                throw err;
+        }
+    }
+    /** Add labels to an issue/PR. Labels already on the item are preserved (this is additive). */
+    async addLabels(owner, repo, issueNumber, labels) {
+        await this.octokit.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels });
     }
     /** Create a comment on an issue/PR (used for nudges, gate warnings, digests, and standups). */
     async comment(owner, repo, issueNumber, body) {
@@ -53236,6 +53262,9 @@ async function runRollover(ctx) {
     const from = completed[0]; // most recently completed
     const to = upcoming[0]; // current/next active iteration
     const onlyStatuses = cfg.features.rollover.onlyStatuses.map((s) => s.toLowerCase());
+    const { addSprintLabel, sprintLabelColor } = cfg.features.rollover;
+    const sprintLabel = to.title; // label named after the iteration items roll into
+    const labelEnsured = new Set(); // repos where the sprint label has been created this run
     for (const item of graph.items) {
         const itemIteration = iterationOf(item, cfg);
         if (!itemIteration || itemIteration.iterationId !== from.id)
@@ -53249,6 +53278,20 @@ async function runRollover(ctx) {
         audit.record("rollover", "move-iteration", label, `${from.title} → ${to.title}${status ? ` (status: ${status})` : ""}`);
         if (!ctx.dryRun) {
             await client.setIteration(graph.id, item.id, iterationField.id, to.id);
+        }
+        // Optionally tag the rolled item with the new sprint's label (additive; existing labels are kept).
+        // Draft items have no linked issue/PR, so there is nothing to label.
+        if (addSprintLabel && item.content && !item.content.labels.includes(sprintLabel)) {
+            const { repoOwner, repoName, number } = item.content;
+            audit.record("rollover", "add-label", label, `+${sprintLabel}`);
+            if (!ctx.dryRun) {
+                const repoKey = `${repoOwner}/${repoName}`;
+                if (!labelEnsured.has(repoKey)) {
+                    await client.ensureLabel(repoOwner, repoName, sprintLabel, sprintLabelColor);
+                    labelEnsured.add(repoKey);
+                }
+                await client.addLabels(repoOwner, repoName, number, [sprintLabel]);
+            }
         }
     }
 }

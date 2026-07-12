@@ -75,6 +75,7 @@ test("normalizeItem maps Issue content with assignees, sub-issues, and parent", 
       updatedAt: "2026-07-07T00:00:00Z",
       repository: { owner: { login: "acme" }, name: "repo" },
       assignees: { nodes: [{ login: "alice" }, { login: "bob" }] },
+      labels: { nodes: [{ name: "pulled-in" }, { name: "2026-S06" }] },
       subIssuesSummary: { total: 4, completed: 3, percentCompleted: 75 },
       parent: { number: 2, title: "Parent", url: "https://github.com/acme/repo/issues/2" },
     },
@@ -82,6 +83,7 @@ test("normalizeItem maps Issue content with assignees, sub-issues, and parent", 
 
   assert.equal(item.content?.type, "Issue");
   assert.deepEqual(item.content?.assignees, ["alice", "bob"]);
+  assert.deepEqual(item.content?.labels, ["pulled-in", "2026-S06"]);
   assert.deepEqual(item.content?.subIssues, { total: 4, completed: 3, percentCompleted: 75 });
   assert.equal(item.content?.parent?.number, 2);
   assert.equal(item.content?.repoOwner, "acme");
@@ -119,5 +121,6 @@ test("normalizeItem maps PullRequest content including merged flag", () => {
   assert.equal(item.content?.type, "PullRequest");
   assert.equal(item.content?.merged, true);
   assert.deepEqual(item.content?.assignees, []);
+  assert.deepEqual(item.content?.labels, []);
   assert.equal(item.content?.subIssues, undefined);
 });

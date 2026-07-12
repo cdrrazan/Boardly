@@ -47,6 +47,7 @@ const ITEM_FIELDS = /* GraphQL */ `
       updatedAt
       repository { owner { login } name }
       assignees(first: 20) { nodes { login } }
+      labels(first: 30) { nodes { name } }
       subIssuesSummary { total completed percentCompleted }
       parent { number title url }
     }
@@ -61,6 +62,7 @@ const ITEM_FIELDS = /* GraphQL */ `
       updatedAt
       repository { owner { login } name }
       assignees(first: 20) { nodes { login } }
+      labels(first: 30) { nodes { name } }
     }
   }
 `;

@@ -27,6 +27,9 @@ export async function runRollover(ctx: RunContext): Promise<void> {
   const from = completed[0]; // most recently completed
   const to = upcoming[0]; // current/next active iteration
   const onlyStatuses = cfg.features.rollover.onlyStatuses.map((s) => s.toLowerCase());
+  const { addSprintLabel, sprintLabelColor } = cfg.features.rollover;
+  const sprintLabel = to.title; // label named after the iteration items roll into
+  const labelEnsured = new Set<string>(); // repos where the sprint label has been created this run
 
   for (const item of graph.items) {
     const itemIteration = iterationOf(item, cfg);
@@ -46,6 +49,21 @@ export async function runRollover(ctx: RunContext): Promise<void> {
 
     if (!ctx.dryRun) {
       await client.setIteration(graph.id, item.id, iterationField.id, to.id);
+    }
+
+    // Optionally tag the rolled item with the new sprint's label (additive; existing labels are kept).
+    // Draft items have no linked issue/PR, so there is nothing to label.
+    if (addSprintLabel && item.content && !item.content.labels.includes(sprintLabel)) {
+      const { repoOwner, repoName, number } = item.content;
+      audit.record("rollover", "add-label", label, `+${sprintLabel}`);
+      if (!ctx.dryRun) {
+        const repoKey = `${repoOwner}/${repoName}`;
+        if (!labelEnsured.has(repoKey)) {
+          await client.ensureLabel(repoOwner, repoName, sprintLabel, sprintLabelColor);
+          labelEnsured.add(repoKey);
+        }
+        await client.addLabels(repoOwner, repoName, number, [sprintLabel]);
+      }
     }
   }
 }

@@ -82,6 +82,7 @@ export function normalizeItem(node: any): ProjectItem {
       repoOwner: c.repository.owner.login,
       repoName: c.repository.name,
       assignees: (c.assignees?.nodes ?? []).map((a: any) => a.login),
+      labels: (c.labels?.nodes ?? []).map((l: any) => l.name),
       subIssues: c.subIssuesSummary
         ? {
             total: c.subIssuesSummary.total,

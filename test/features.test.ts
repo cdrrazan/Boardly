@@ -47,6 +47,37 @@ test("rollover in dry-run records intent but mutates nothing", async () => {
   assert.equal(ctx.audit.count, 1);
 });
 
+test("rollover adds the new sprint label, creating it once per repo, and skips items already labelled", async () => {
+  const cfg = makeConfig({ features: { rollover: { enabled: true, addSprintLabel: true, sprintLabelColor: "772fd1" } } });
+  const fields = [statusField(["Todo", "Done"]), iterationField([{ id: "it2", title: "2026-S06" }], [{ id: "it1", title: "2026-S05" }])];
+  const needsLabel = makeItem([statusValue("Todo", "2026-07-01T00:00:00Z"), iterationValue("it1", "2026-S05")], { number: 1 });
+  const alreadyLabelled = makeItem([statusValue("Todo", "2026-07-01T00:00:00Z"), iterationValue("it1", "2026-S05")], { number: 2, labels: ["2026-S06"] });
+  const client = new FakeClient();
+
+  await runRollover(makeCtx(makeGraph(fields, [needsLabel, alreadyLabelled]), cfg, client));
+
+  // Both items move iterations...
+  assert.equal(client.iterations.length, 2);
+  // ...but only the unlabelled one gets the label, and the label is created once.
+  assert.deepEqual(client.ensuredLabels, [{ name: "2026-S06", color: "772fd1" }]);
+  assert.deepEqual(client.labelsAdded, [{ number: 1, labels: ["2026-S06"] }]);
+});
+
+test("rollover label add in dry-run records intent but creates/adds nothing", async () => {
+  const cfg = makeConfig({ features: { rollover: { enabled: true, addSprintLabel: true } } });
+  const fields = [statusField(["Todo", "Done"]), iterationField([{ id: "it2", title: "S6" }], [{ id: "it1", title: "S5" }])];
+  const item = makeItem([statusValue("Todo", "2026-07-01T00:00:00Z"), iterationValue("it1", "S5")], { number: 1 });
+  const client = new FakeClient();
+  const ctx = makeCtx(makeGraph(fields, [item]), cfg, client, true);
+
+  await runRollover(ctx);
+
+  assert.equal(client.ensuredLabels.length, 0);
+  assert.equal(client.labelsAdded.length, 0);
+  // one move-iteration record + one add-label record
+  assert.equal(ctx.audit.count, 2);
+});
+
 test("stale-nudge comments and @-mentions assignees past the threshold", async () => {
   const cfg = makeConfig({
     features: { staleNudge: { enabled: true, rules: [{ status: "In Progress", days: 3, notify: "assignees" }] } },
