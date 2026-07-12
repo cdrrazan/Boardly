@@ -1,0 +1,126 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Boardly — worked example config
+#
+# This is a *realistic, filled-in* setup for a fictional team (Nimbus Labs) so
+# you can see how the pieces fit together, not just the bare schema. For the
+# terse option-by-option reference, see project-automation.example.yml instead.
+#
+# Scenario: a 5-person product team runs two-week sprints on GitHub Project #7.
+# They want unfinished work rolled forward, stalled cards nudged (with the PM
+# looped in on anything Blocked), "Done" gated until sub-issues close, a digest
+# each sprint end, a daily standup, and everything mirrored to Slack and email.
+#
+# Copy to .github/project-automation.yml and swap in your own org / logins.
+# ─────────────────────────────────────────────────────────────────────────────
+
+project:
+  owner: nimbus-labs      # the org that owns the board (github.com/orgs/nimbus-labs)
+  type: org
+  number: 7               # from the URL: /orgs/nimbus-labs/projects/7
+
+# The team renamed a couple of fields, so map the real names here.
+fields:
+  status: Status
+  iteration: Sprint
+  priority: Priority
+  estimate: Estimate      # story points — powers velocity in the digest
+  progress: Progress      # sub-issue roll-up % is written back here
+
+doneStatuses: ["Done", "Released"]
+
+features:
+  # 1) When a sprint ends, pull everything unfinished into the new sprint and
+  #    tag it so the team can spot carried-over work at a glance.
+  rollover:
+    enabled: true
+    onlyStatuses: []                # roll every non-done card
+    addSprintLabel: true            # e.g. adds a "2026-S14" label to each rolled card
+    sprintLabelColor: "772fd1"
+    removeLabels: ["pulled-in"]     # drop the stale carry-over marker from last time
+
+  # 2) At sprint start, promote anything the team pre-parked in "Backlog" so the
+  #    board opens the sprint with a real "Ready" column.
+  sprintStart:
+    enabled: true
+    fromStatuses: ["Backlog"]
+    toStatus: "Ready"
+
+  # 3) Yell if fewer than two future sprints are planned (GitHub won't make them).
+  sprintRunway:
+    enabled: true
+    minFuture: 2
+
+  # 4) Auto-assign fresh, unassigned tickets by area label.
+  autoAssign:
+    enabled: true
+    onlyStatuses: ["Ready"]
+    rules:
+      - label: "frontend"
+        assignees: ["maya-oss"]
+      - label: "backend"
+        assignees: ["dev-kohl"]
+      - label: "infra"
+        assignees: ["tomasz-w"]
+      - label: "security"
+        assignees: ["priya-r"]
+
+  # 5) Nudge owners when a card sits too long. Blocked is the urgent one, so it
+  #    pings the assignees AND the project manager after a single day.
+  staleNudge:
+    enabled: true
+    rules:
+      - status: "In Progress"
+        days: 4
+        notify: assignees
+        # placeholders: {days} {status} {number} {title}
+        message: "Heads up — #{number} **{title}** has sat in **{status}** for {days} days. Still moving, or blocked?"
+      - status: "In Review"
+        days: 2
+        notify: ["assignees", "maya-oss"]   # ping the reviewer too
+      - status: "Blocked"
+        days: 1
+        notify: ["assignees", "eng-manager"] # loop the PM in fast on blockers
+
+  # 6) Don't let a parent close while its sub-issues are open; write completion %
+  #    to the Progress field so the board shows real roll-up.
+  subIssueGate:
+    enabled: true
+    guardStatuses: ["Done", "Released"]
+    action: revert
+    revertStatus: "In Progress"
+
+  # 7) Sprint digest — comment on the team's standing "Sprint reports" issue.
+  digest:
+    enabled: true
+    postTo:
+      issue: 128
+
+  # 8) Daily standup — open a fresh issue each run, labelled so they're easy to find.
+  standup:
+    enabled: true
+    sinceHours: 24
+    postTo:
+      createIssueTitle: "Daily standup"
+      labels: ["standup"]
+
+  # 9) Keep the board sorted by priority.
+  prioritySort:
+    enabled: true
+    order: ["Urgent", "High", "Medium", "Low"]
+
+# Mirror digests, standups, and stale alerts into #eng-board on Slack and email.
+# Secrets are referenced BY ENV-VAR NAME (webhookEnv / userEnv / passwordEnv) and
+# supplied via the workflow's env: block — never inline the actual values here.
+notifications:
+  slack:
+    enabled: true
+    webhookEnv: SLACK_WEBHOOK_URL      # workflow maps this to the real webhook secret
+  email:
+    enabled: true
+    host: smtp.postmarkapp.com
+    port: 587
+    secure: false                      # true for port 465 (implicit TLS)
+    userEnv: SMTP_USER                 # env var holding the SMTP username
+    passwordEnv: SMTP_PASS             # env var holding the SMTP password
+    from: "Nimbus Board Bot <board-bot@nimbus-labs.dev>"
+    to: ["engineering@nimbus-labs.dev"]
