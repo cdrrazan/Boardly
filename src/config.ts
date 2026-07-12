@@ -55,6 +55,14 @@ export const configSchema = z.object({
       sprintLabelColor: z.string().regex(/^[0-9a-fA-F]{6}$/, "sprintLabelColor must be a 6-digit hex color without a leading '#'").default("772fd1"),
     }).default({ enabled: false, onlyStatuses: [], addSprintLabel: false, sprintLabelColor: "772fd1" }),
 
+    sprintStart: z.object({
+      enabled: z.boolean().default(false),
+      // Statuses treated as "not started yet" (case-insensitive).
+      fromStatuses: z.array(z.string().min(1)).default(["Backlog"]),
+      // Status a pre-parked card is promoted to when its sprint becomes active.
+      toStatus: z.string().min(1).default("Ready"),
+    }).default({ enabled: false, fromStatuses: ["Backlog"], toStatus: "Ready" }),
+
     staleNudge: z.object({
       enabled: z.boolean().default(false),
       rules: z.array(staleRuleSchema).default([]),

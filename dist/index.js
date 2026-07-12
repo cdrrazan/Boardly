@@ -52568,6 +52568,13 @@ const configSchema = objectType({
             // Hex color (no leading '#') used when the sprint label must be created.
             sprintLabelColor: stringType().regex(/^[0-9a-fA-F]{6}$/, "sprintLabelColor must be a 6-digit hex color without a leading '#'").default("772fd1"),
         }).default({ enabled: false, onlyStatuses: [], addSprintLabel: false, sprintLabelColor: "772fd1" }),
+        sprintStart: objectType({
+            enabled: booleanType().default(false),
+            // Statuses treated as "not started yet" (case-insensitive).
+            fromStatuses: arrayType(stringType().min(1)).default(["Backlog"]),
+            // Status a pre-parked card is promoted to when its sprint becomes active.
+            toStatus: stringType().min(1).default("Ready"),
+        }).default({ enabled: false, fromStatuses: ["Backlog"], toStatus: "Ready" }),
         staleNudge: objectType({
             enabled: booleanType().default(false),
             rules: arrayType(staleRuleSchema).default([]),
@@ -53296,6 +53303,61 @@ async function runRollover(ctx) {
     }
 }
 
+;// CONCATENATED MODULE: ./src/features/sprintStart.ts
+
+
+/**
+ * Sprint start: promote pre-parked backlog cards when their sprint becomes active.
+ *
+ * Teams often assign tickets to a *future* iteration while the current one is
+ * still running; those tickets sit in a "Backlog" status. Once that iteration
+ * becomes the active sprint, move each such card into a "Ready" status — but
+ * only cards that were parked **before** the sprint started, so a card
+ * deliberately moved back to Backlog mid-sprint is left alone.
+ */
+async function runSprintStart(ctx) {
+    const { cfg, graph, client, audit } = ctx;
+    const { fromStatuses, toStatus } = cfg.features.sprintStart;
+    const iterationField = requireField(graph, cfg.fields.iteration, "sprintStart");
+    const statusField = requireField(graph, cfg.fields.status, "sprintStart");
+    const current = (iterationField.iterations ?? [])[0];
+    if (!current) {
+        core.info("sprintStart: no active/upcoming iteration — nothing to promote.");
+        return;
+    }
+    const start = new Date(`${current.startDate}T00:00:00Z`);
+    if (start.getTime() > ctx.now.getTime()) {
+        core.info(`sprintStart: iteration "${current.title}" hasn't started yet (starts ${current.startDate}).`);
+        return;
+    }
+    const toOptionId = optionId(statusField, toStatus);
+    if (!toOptionId) {
+        const available = (statusField.options ?? []).map((o) => o.name).join(", ");
+        throw new Error(`sprintStart: target status "${toStatus}" not found on the "${statusField.name}" field. Available: ${available}`);
+    }
+    const fromLower = fromStatuses.map((s) => s.toLowerCase());
+    for (const item of graph.items) {
+        const it = iterationOf(item, cfg);
+        if (!it || it.iterationId !== current.id)
+            continue;
+        if (isDone(item, cfg))
+            continue;
+        const status = statusOf(item, cfg);
+        if (!status || !fromLower.includes(status.toLowerCase()))
+            continue;
+        // Promote only cards parked before the sprint began; a mid-sprint move back
+        // to Backlog (status changed on/after the start date) is respected.
+        const changedAt = statusUpdatedAt(item, cfg);
+        if (!changedAt || new Date(changedAt).getTime() >= start.getTime())
+            continue;
+        const label = item.content ? `#${item.content.number} ${item.content.title}` : item.id;
+        audit.record("sprintStart", "promote-status", label, `${status} → ${toStatus} (${current.title})`);
+        if (!ctx.dryRun) {
+            await client.setSingleSelect(graph.id, item.id, statusField.id, toOptionId);
+        }
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/util/dates.ts
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 /** Fractional number of days from `from` to `to` (negative if `to` precedes `from`). */
@@ -53651,9 +53713,11 @@ function sameOrder(a, b) {
 
 
 
+
 /** Maps each feature key (also the accepted values of the `only` input) to its runner. */
 const RUNNERS = {
     rollover: runRollover,
+    "sprint-start": runSprintStart,
     "stale-nudge": runStaleNudge,
     "sub-issue-gate": runSubIssueGate,
     digest: runDigest,
@@ -53665,6 +53729,8 @@ function isEnabled(cfg, key) {
     switch (key) {
         case "rollover":
             return cfg.features.rollover.enabled;
+        case "sprint-start":
+            return cfg.features.sprintStart.enabled;
         case "stale-nudge":
             return cfg.features.staleNudge.enabled;
         case "sub-issue-gate":

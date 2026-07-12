@@ -6,17 +6,19 @@ import { Audit } from "./util/audit.js";
 import { buildNotifier } from "./notify/notifier.js";
 import type { RunContext } from "./features/context.js";
 import { runRollover } from "./features/rollover.js";
+import { runSprintStart } from "./features/sprintStart.js";
 import { runStaleNudge } from "./features/staleNudge.js";
 import { runSubIssueGate } from "./features/subIssueGate.js";
 import { runDigest } from "./features/digest.js";
 import { runStandup } from "./features/standup.js";
 import { runPrioritySort } from "./features/prioritySort.js";
 
-type FeatureKey = "rollover" | "stale-nudge" | "sub-issue-gate" | "digest" | "standup" | "priority-sort";
+type FeatureKey = "rollover" | "sprint-start" | "stale-nudge" | "sub-issue-gate" | "digest" | "standup" | "priority-sort";
 
 /** Maps each feature key (also the accepted values of the `only` input) to its runner. */
 const RUNNERS: Record<FeatureKey, (ctx: RunContext) => Promise<void>> = {
   rollover: runRollover,
+  "sprint-start": runSprintStart,
   "stale-nudge": runStaleNudge,
   "sub-issue-gate": runSubIssueGate,
   digest: runDigest,
@@ -29,6 +31,8 @@ function isEnabled(cfg: RunContext["cfg"], key: FeatureKey): boolean {
   switch (key) {
     case "rollover":
       return cfg.features.rollover.enabled;
+    case "sprint-start":
+      return cfg.features.sprintStart.enabled;
     case "stale-nudge":
       return cfg.features.staleNudge.enabled;
     case "sub-issue-gate":

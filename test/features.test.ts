@@ -16,6 +16,7 @@ import {
   estimateValue,
 } from "./helpers.js";
 import { runRollover } from "../src/features/rollover.js";
+import { runSprintStart } from "../src/features/sprintStart.js";
 import { runStaleNudge } from "../src/features/staleNudge.js";
 import { runSubIssueGate } from "../src/features/subIssueGate.js";
 import { runPrioritySort } from "../src/features/prioritySort.js";
@@ -76,6 +77,49 @@ test("rollover label add in dry-run records intent but creates/adds nothing", as
   assert.equal(client.labelsAdded.length, 0);
   // one move-iteration record + one add-label record
   assert.equal(ctx.audit.count, 2);
+});
+
+test("sprint-start promotes cards parked before the sprint started, skipping mid-sprint moves and non-backlog", async () => {
+  const cfg = makeConfig({ features: { sprintStart: { enabled: true, fromStatuses: ["Backlog"], toStatus: "Ready" } } });
+  // Helper's iterationField start date is 2026-06-01, before NOW (2026-07-09) → the sprint has started.
+  const fields = [statusField(["Backlog", "Ready", "Done"]), iterationField([{ id: "it1", title: "2026-S08" }], [])];
+  const parked = makeItem([statusValue("Backlog", "2026-05-01T00:00:00Z"), iterationValue("it1", "2026-S08")], { number: 1 });
+  const movedBack = makeItem([statusValue("Backlog", "2026-07-01T00:00:00Z"), iterationValue("it1", "2026-S08")], { number: 2 });
+  const alreadyReady = makeItem([statusValue("Ready", "2026-05-01T00:00:00Z"), iterationValue("it1", "2026-S08")], { number: 3 });
+  const client = new FakeClient();
+
+  await runSprintStart(makeCtx(makeGraph(fields, [parked, movedBack, alreadyReady]), cfg, client));
+
+  assert.deepEqual(client.singleSelects, [{ itemId: parked.id, optionId: "opt-Ready" }]);
+});
+
+test("sprint-start does nothing until the iteration has actually started", async () => {
+  const cfg = makeConfig({ features: { sprintStart: { enabled: true } } });
+  const futureSprint: import("../src/types.js").ProjectField = {
+    id: "F_sprint", name: "Sprint", dataType: "ITERATION",
+    iterations: [{ id: "it1", title: "2026-S09", startDate: "2026-08-01", duration: 14 }],
+    completedIterations: [],
+  };
+  const fields = [statusField(["Backlog", "Ready"]), futureSprint];
+  const parked = makeItem([statusValue("Backlog", "2026-05-01T00:00:00Z"), iterationValue("it1", "2026-S09")], { number: 1 });
+  const client = new FakeClient();
+
+  await runSprintStart(makeCtx(makeGraph(fields, [parked]), cfg, client));
+
+  assert.equal(client.singleSelects.length, 0);
+});
+
+test("sprint-start in dry-run records intent but mutates nothing", async () => {
+  const cfg = makeConfig({ features: { sprintStart: { enabled: true } } });
+  const fields = [statusField(["Backlog", "Ready", "Done"]), iterationField([{ id: "it1", title: "2026-S08" }], [])];
+  const parked = makeItem([statusValue("Backlog", "2026-05-01T00:00:00Z"), iterationValue("it1", "2026-S08")], { number: 1 });
+  const client = new FakeClient();
+  const ctx = makeCtx(makeGraph(fields, [parked]), cfg, client, true);
+
+  await runSprintStart(ctx);
+
+  assert.equal(client.singleSelects.length, 0);
+  assert.equal(ctx.audit.count, 1);
 });
 
 test("stale-nudge comments and @-mentions assignees past the threshold", async () => {
