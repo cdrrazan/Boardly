@@ -152,6 +152,26 @@ test("auto-assign maps labels to owners, unions multiple matches, and skips assi
   ]);
 });
 
+test("auto-assign matches labels case-insensitively (rule casing vs board casing)", async () => {
+  const cfg = makeConfig({
+    features: { autoAssign: { enabled: true, onlyStatuses: ["Ready"], rules: [{ label: "uI", assignees: ["zach"] }] } },
+  });
+  const fields = [statusField(["Ready"])];
+  // Rule says "uI"; board labels use assorted casings — all must match.
+  const a = makeItem([statusValue("Ready", "2026-07-09T00:00:00Z")], { number: 1, labels: ["UI"] });
+  const b = makeItem([statusValue("Ready", "2026-07-09T00:00:00Z")], { number: 2, labels: ["ui"] });
+  const c = makeItem([statusValue("Ready", "2026-07-09T00:00:00Z")], { number: 3, labels: ["Ui"] });
+  const client = new FakeClient();
+
+  await runAutoAssign(makeCtx(makeGraph(fields, [a, b, c]), cfg, client));
+
+  assert.deepEqual(client.assigneesAdded, [
+    { number: 1, assignees: ["zach"] },
+    { number: 2, assignees: ["zach"] },
+    { number: 3, assignees: ["zach"] },
+  ]);
+});
+
 test("auto-assign in dry-run records intent but assigns nobody", async () => {
   const cfg = makeConfig({
     features: { autoAssign: { enabled: true, onlyStatuses: ["Ready"], rules: [{ label: "UI", assignees: ["zach"] }] } },
