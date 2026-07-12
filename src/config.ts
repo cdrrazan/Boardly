@@ -70,6 +70,12 @@ export const configSchema = z.object({
       toStatus: z.string().min(1).default("Ready"),
     }).default({ enabled: false, fromStatuses: ["Backlog"], toStatus: "Ready" }),
 
+    sprintRunway: z.object({
+      enabled: z.boolean().default(false),
+      // Warn when fewer than this many *future* iterations are planned beyond the current one.
+      minFuture: z.number().int().positive().default(1),
+    }).default({ enabled: false, minFuture: 1 }),
+
     autoAssign: z.object({
       enabled: z.boolean().default(false),
       // Only assign tickets currently in these statuses; empty = any non-done.

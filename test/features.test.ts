@@ -18,6 +18,7 @@ import {
 import { runRollover } from "../src/features/rollover.js";
 import { runSprintStart } from "../src/features/sprintStart.js";
 import { runAutoAssign } from "../src/features/autoAssign.js";
+import { runSprintRunway } from "../src/features/sprintRunway.js";
 import { runStaleNudge } from "../src/features/staleNudge.js";
 import { runSubIssueGate } from "../src/features/subIssueGate.js";
 import { runPrioritySort } from "../src/features/prioritySort.js";
@@ -184,6 +185,35 @@ test("auto-assign in dry-run records intent but assigns nobody", async () => {
 
   assert.equal(client.assigneesAdded.length, 0);
   assert.equal(ctx.audit.count, 1);
+});
+
+test("sprint-runway warns when no future iteration is planned beyond the current one", async () => {
+  const cfg = makeConfig({ features: { sprintRunway: { enabled: true, minFuture: 1 } } });
+  // Helper iterations start 2026-06-01 (before NOW) → current only, zero future planned.
+  const fields = [iterationField([{ id: "it1", title: "2026-S08" }], [])];
+  const client = new FakeClient();
+  const ctx = makeCtx(makeGraph(fields, []), cfg, client);
+
+  await runSprintRunway(ctx);
+
+  assert.equal(ctx.audit.count, 1);
+});
+
+test("sprint-runway stays quiet when enough future iterations are planned", async () => {
+  const cfg = makeConfig({ features: { sprintRunway: { enabled: true, minFuture: 1 } } });
+  const field: import("../src/types.js").ProjectField = {
+    id: "F_sprint", name: "Sprint", dataType: "ITERATION",
+    iterations: [
+      { id: "it1", title: "2026-S08", startDate: "2026-06-01", duration: 14 }, // current
+      { id: "it2", title: "2026-S09", startDate: "2026-08-01", duration: 14 }, // future
+    ],
+    completedIterations: [],
+  };
+  const ctx = makeCtx(makeGraph([field], []), cfg, new FakeClient());
+
+  await runSprintRunway(ctx);
+
+  assert.equal(ctx.audit.count, 0);
 });
 
 test("stale-nudge comments and @-mentions assignees past the threshold", async () => {

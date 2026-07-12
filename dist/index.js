@@ -52581,6 +52581,11 @@ const configSchema = objectType({
             // Status a pre-parked card is promoted to when its sprint becomes active.
             toStatus: stringType().min(1).default("Ready"),
         }).default({ enabled: false, fromStatuses: ["Backlog"], toStatus: "Ready" }),
+        sprintRunway: objectType({
+            enabled: booleanType().default(false),
+            // Warn when fewer than this many *future* iterations are planned beyond the current one.
+            minFuture: numberType().int().positive().default(1),
+        }).default({ enabled: false, minFuture: 1 }),
         autoAssign: objectType({
             enabled: booleanType().default(false),
             // Only assign tickets currently in these statuses; empty = any non-done.
@@ -53378,6 +53383,38 @@ async function runSprintStart(ctx) {
     }
 }
 
+;// CONCATENATED MODULE: ./src/features/sprintRunway.ts
+
+
+/**
+ * Sprint runway warning.
+ *
+ * GitHub never creates iterations automatically — the iteration list is a fixed,
+ * manually-managed set. When the current sprint ends and nothing is planned
+ * beyond it, `rollover`/`sprintStart` have no iteration to act on. This feature
+ * is read-only: it counts how many iterations start *in the future* and warns
+ * (job summary + Action annotation) when that runway drops below `minFuture`,
+ * so someone adds the next sprint before the board runs dry.
+ */
+async function runSprintRunway(ctx) {
+    const { cfg, graph, audit } = ctx;
+    const field = requireField(graph, cfg.fields.iteration, "sprintRunway");
+    const { minFuture } = cfg.features.sprintRunway;
+    const now = ctx.now.getTime();
+    const iterations = field.iterations ?? [];
+    const planned = iterations.filter((it) => new Date(`${it.startDate}T00:00:00Z`).getTime() > now);
+    if (planned.length >= minFuture) {
+        core.info(`sprintRunway: ${planned.length} future iteration(s) planned (min ${minFuture}) — OK.`);
+        return;
+    }
+    const have = planned.length === 0
+        ? "no future iterations are planned"
+        : `only ${planned.length} future iteration(s) planned`;
+    const msg = `Sprint runway low: ${have} (want at least ${minFuture}). Add the next sprint in the "${field.name}" field settings — GitHub does not create iterations automatically.`;
+    audit.record("sprintRunway", "warn-runway", field.name, msg);
+    core.warning(`sprintRunway: ${msg}`);
+}
+
 ;// CONCATENATED MODULE: ./src/features/autoAssign.ts
 
 /**
@@ -53783,10 +53820,12 @@ function sameOrder(a, b) {
 
 
 
+
 /** Maps each feature key (also the accepted values of the `only` input) to its runner. */
 const RUNNERS = {
     rollover: runRollover,
     "sprint-start": runSprintStart,
+    "sprint-runway": runSprintRunway,
     "auto-assign": runAutoAssign,
     "stale-nudge": runStaleNudge,
     "sub-issue-gate": runSubIssueGate,
@@ -53801,6 +53840,8 @@ function isEnabled(cfg, key) {
             return cfg.features.rollover.enabled;
         case "sprint-start":
             return cfg.features.sprintStart.enabled;
+        case "sprint-runway":
+            return cfg.features.sprintRunway.enabled;
         case "auto-assign":
             return cfg.features.autoAssign.enabled;
         case "stale-nudge":

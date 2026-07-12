@@ -7,6 +7,7 @@ import { buildNotifier } from "./notify/notifier.js";
 import type { RunContext } from "./features/context.js";
 import { runRollover } from "./features/rollover.js";
 import { runSprintStart } from "./features/sprintStart.js";
+import { runSprintRunway } from "./features/sprintRunway.js";
 import { runAutoAssign } from "./features/autoAssign.js";
 import { runStaleNudge } from "./features/staleNudge.js";
 import { runSubIssueGate } from "./features/subIssueGate.js";
@@ -14,12 +15,13 @@ import { runDigest } from "./features/digest.js";
 import { runStandup } from "./features/standup.js";
 import { runPrioritySort } from "./features/prioritySort.js";
 
-type FeatureKey = "rollover" | "sprint-start" | "auto-assign" | "stale-nudge" | "sub-issue-gate" | "digest" | "standup" | "priority-sort";
+type FeatureKey = "rollover" | "sprint-start" | "sprint-runway" | "auto-assign" | "stale-nudge" | "sub-issue-gate" | "digest" | "standup" | "priority-sort";
 
 /** Maps each feature key (also the accepted values of the `only` input) to its runner. */
 const RUNNERS: Record<FeatureKey, (ctx: RunContext) => Promise<void>> = {
   rollover: runRollover,
   "sprint-start": runSprintStart,
+  "sprint-runway": runSprintRunway,
   "auto-assign": runAutoAssign,
   "stale-nudge": runStaleNudge,
   "sub-issue-gate": runSubIssueGate,
@@ -35,6 +37,8 @@ function isEnabled(cfg: RunContext["cfg"], key: FeatureKey): boolean {
       return cfg.features.rollover.enabled;
     case "sprint-start":
       return cfg.features.sprintStart.enabled;
+    case "sprint-runway":
+      return cfg.features.sprintRunway.enabled;
     case "auto-assign":
       return cfg.features.autoAssign.enabled;
     case "stale-nudge":

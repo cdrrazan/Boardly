@@ -19,5 +19,6 @@ Real-world scenarios for Boardly, each as a standalone recipe you can copy. Ever
 | 13 | [Send digests & alerts to Slack and email](./13-notifications.md) | Notifications |
 | 14 | [Promote pre-parked cards when a sprint starts](./14-sprint-start.md) | Sprint start |
 | 15 | [Auto-assign tickets by label](./15-auto-assign.md) | Auto-assign |
+| 16 | [Get warned before you run out of sprints](./16-sprint-runway.md) | Sprint runway |
 
 > New to the tool? Start with [01](./01-sprint-rollover.md) and [08](./08-dry-run-preview.md).
