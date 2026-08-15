@@ -16,7 +16,7 @@ A config-driven GitHub Action that automates **GitHub Projects (v2)** — sprint
 [![Ruby edition](https://img.shields.io/badge/Ruby%20edition-Boardly--ruby-CC342D?logo=ruby&logoColor=white)](https://github.com/cdrrazan/Boardly-ruby)
 [![Node](https://img.shields.io/badge/Node-%E2%89%A520-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![GitHub Projects v2](https://img.shields.io/badge/GitHub-Projects%20v2-181717?logo=github&logoColor=white)](https://docs.github.com/issues/planning-and-tracking-with-projects)
-[![Tests](https://img.shields.io/badge/tests-48%20passing-brightgreen.svg)](./test)
+[![Tests](https://img.shields.io/badge/tests-62%20passing-brightgreen.svg)](./test)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](./CONTRIBUTING.md)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](./OPEN_SOURCE.md)
 
@@ -39,12 +39,15 @@ flowchart LR
     action -->|GraphQL| gh[(🗂️ GitHub Project v2)]
     gh --> action
     action --> f1[🔁 Rollover]
-    action --> f2[🔔 Stale nudges]
-    action --> f3[🧩 Sub-issue gate]
-    action --> f4[🏁 Digest]
-    action --> f5[🗓️ Standup]
-    action --> f6[🔼 Priority sort]
-    f1 & f2 & f3 & f4 & f5 & f6 --> audit[[📋 Audit trail → Job Summary]]
+    action --> f2[▶️ Sprint start]
+    action --> f3[👤 Auto-assign]
+    action --> f4[🛬 Sprint runway]
+    action --> f5[🔔 Stale nudges]
+    action --> f6[🧩 Sub-issue gate]
+    action --> f7[🏁 Digest]
+    action --> f8[🗓️ Standup]
+    action --> f9[🔼 Priority sort]
+    f1 & f2 & f3 & f4 & f5 & f6 & f7 & f8 & f9 --> audit[[📋 Audit trail → Job Summary]]
 ```
 
 ## 🚀 Features

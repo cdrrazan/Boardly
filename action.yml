@@ -1,5 +1,5 @@
 name: "Boardly"
-description: "Config-driven automation for GitHub Projects (v2): sprint rollover, stale nudges, sub-issue gating, digests, standups, and priority auto-sort."
+description: "Config-driven automation for GitHub Projects (v2): sprint rollover and start, auto-assign by label, runway warnings, stale nudges, sub-issue gating, digests, standups, and priority auto-sort."
 author: "cdrrazan"
 branding:
   icon: "check-square"
