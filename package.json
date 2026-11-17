@@ -29,22 +29,22 @@
   },
   "homepage": "https://github.com/cdrrazan/Boardly#readme",
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.1",
-    "@octokit/graphql": "^8.2.2",
-    "js-yaml": "^4.1.0",
-    "nodemailer": "^6.10.1",
-    "zod": "^3.25.76"
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
+    "@octokit/graphql": "^9.0.5",
+    "js-yaml": "^5.5.0",
+    "nodemailer": "^10.6.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.15.3",
-    "@types/nodemailer": "^6.4.24",
-    "@vercel/ncc": "^0.38.3",
-    "tsx": "^4.23.0",
+    "@types/node": "^24.19.2",
+    "@types/nodemailer": "^8.0.2",
+    "@vercel/ncc": "^0.45.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.3"
   }
 }

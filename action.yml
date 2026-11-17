@@ -30,5 +30,5 @@ outputs:
   actions-count:
     description: "Number of mutating actions taken (or that would be taken in dry-run)."
 runs:
-  using: "node20"
+  using: "node24"
   main: "dist/index.js"

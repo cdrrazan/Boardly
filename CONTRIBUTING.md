@@ -19,7 +19,7 @@ cd Boardly
 npm install
 ```
 
-Requires **Node.js ≥ 20**.
+Requires **Node.js ≥ 24**.
 
 ### Everyday commands
 

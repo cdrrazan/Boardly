@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`reviewers` notify token for stale nudges** — resolves to the *pending* review requests on the card's PR (or the PR that closes the issue), falling back to the assignees when no review is outstanding. Works bare or mixed into a `notify:` list alongside literal logins.
 - New `only:` values for the added features: `sprint-start`, `sprint-runway`, `auto-assign`.
 
+### Changed
+- **Runtime moved to Node 24** — the action now runs as `node24` (Node 20 is end-of-life and GitHub Actions has retired the `node20` runtime). Contributors need Node.js ≥ 24.
+- CI, PR-check, and major-tag workflows updated to `actions/checkout@v7` and `actions/setup-node@v7`, building on Node 24.
+- Dependencies refreshed to current majors: `@actions/core` 3, `@actions/github` 9, `@octokit/graphql` 9, `zod` 4, `js-yaml` 5, `nodemailer` 10, `@vercel/ncc` 0.45. Config schema and action inputs are unchanged.
+
+### Security
+- Upgraded `zod` to 4.6.7 to resolve [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) (memory exhaustion validating oversized collections). `npm audit` reports 0 vulnerabilities.
+
 ### Documentation
 - Three new use-case recipes — [14 · Sprint start](./docs/use-cases/14-sprint-start.md), [15 · Auto-assign](./docs/use-cases/15-auto-assign.md), [16 · Sprint runway](./docs/use-cases/16-sprint-runway.md) — bringing the cookbook to 16.
 - A worked end-to-end sample under [`examples/`](./examples) — a full config plus the workflow that runs it, with Slack and email enabled.

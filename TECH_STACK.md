@@ -7,14 +7,14 @@ Boardly is two deliverables in one repository: the **GitHub Action** (the produc
 | Layer | Choice | Notes |
 |-------|--------|-------|
 | Language | **TypeScript** (strict, ES modules) | `tsconfig.json` with `strict`, `noUnusedLocals`, etc. |
-| Runtime | **Node.js ≥ 20** | Ships as a `node20` GitHub Action (`action.yml`) |
+| Runtime | **Node.js ≥ 24** | Ships as a `node24` GitHub Action (`action.yml`) |
 | GitHub API | **`@octokit/graphql`** + **`@actions/github`** | Projects v2 via GraphQL; issues/comments via REST |
 | Action toolkit | **`@actions/core`** | Inputs, outputs, and the job-summary audit trail |
-| Config | **YAML** (`js-yaml`) validated with **Zod** | One `.github/project-automation.yml` file |
+| Config | **YAML** (`js-yaml`) validated with **Zod 4** | One `.github/project-automation.yml` file |
 | Email | **`nodemailer`** | SMTP delivery for digests/standups/alerts |
 | Slack | Native **`fetch`** | Incoming Webhook POST |
 | Bundler | **`@vercel/ncc`** | Compiles `src/` → a single committed `dist/index.js` |
-| Tests | **`node:test`** + **`tsx`** | 48 unit tests against a fake Octokit client |
+| Tests | **`node:test`** + **`tsx`** | 62 unit tests against a fake Octokit client |
 | Typecheck | **`tsc --noEmit`** | No runtime framework |
 
 **Source layout**
